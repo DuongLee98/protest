@@ -28,6 +28,9 @@ io.on('connection', function(clientSocket){
     regs(clientSocket, 'regs', 'rreg')
     regt(clientSocket, 'regt', 'rreg')
     createGroupByTeacher(clientSocket, 'createGroupByTeacher', 'rcreateGroupByTeacher');
+    getInfoAllGroupTeacherManage(clientSocket, 'getInfoAllGroupTeacherManage', 'rgetInfoAllGroupTeacherManage');
+    deleteGroupByTeacher(clientSocket, 'deleteGroupByTeacher', 'rdeleteGroupByTeacher');
+    editGroupByTeacher(clientSocket, 'editGroupByTeacher', 'reditGroupByTeacher');
 
     clientSocket.on('disconnect', function(){
         log('(Client) disconnected: '+ clientSocket.id);
@@ -224,38 +227,53 @@ function createGroupByTeacher(socket, keyin, keyout)
 						try
 						{
 							let idgroup = await group.getGid(namegroup);
-							try
+							let existGroupManage = await group.groupExistManage(idgroup);
+							if (existGroupManage == false)
 							{
-								let addManage = await group.addManage(userteacher, idgroup);
-								var tx = config.infoTransaction(addManage);
-								if (tx.status == true)
+								try
 								{
-									var ddata = {};
-									data.namegroup = namegroup;
-									data.userteacher = userteacher;
-									data.idgroup = idgroup;
-									socket.emit(keyout, success(data, "create Group success"))
-									log('(Server) '+ID[socket.id]+'<-'+keyout+": "+JSON.stringify(data));
-									log('(Block ) transaction info: '+JSON.stringify(tx))
+									let addManage = await group.addManage(userteacher, idgroup);
+									var tx = config.infoTransaction(addManage);
+									if (tx.status == true)
+									{
+										var ddata = {};
+										ddata.namegroup = namegroup;
+										ddata.userteacher = userteacher;
+										ddata.idgroup = idgroup;
+										socket.emit(keyout, success(ddata, "create Group success"))
+										log('(Server) '+ID[socket.id]+'<-'+keyout+": "+JSON.stringify(ddata));
+										log('(Block ) transaction info: '+JSON.stringify(tx))
+									}
+									else
+									{
+										var msg = 'create Group false'
+										socket.emit(keyout, error(msg))
+										log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+										log('(Block ) transaction info: '+JSON.stringify(tx))
+
+										group.deleteGroup(idgroup).then(function (edata){
+											log('(Block ) transaction info: '+JSON.stringify(config.infoTransaction(edata)));
+										})
+									}
 								}
-								else
+								catch (e)
 								{
-									var msg = 'create Group false'
+									var msg = 'Error System!'
 									socket.emit(keyout, error(msg))
 									log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
-									log('(Block ) transaction info: '+JSON.stringify(tx))
+									log('(Block ) transaction error: '+e)
 
 									group.deleteGroup(idgroup).then(function (edata){
 										log('(Block ) transaction info: '+JSON.stringify(config.infoTransaction(edata)));
 									})
 								}
 							}
-							catch (e)
+							else
 							{
-								var msg = 'Error System!'
+								var msg = 'Group managed by other teacher'
 								socket.emit(keyout, error(msg))
 								log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
-								log('(Block ) transaction error: '+e)
+								log('(Block ) transaction info: '+JSON.stringify(tx))
 
 								group.deleteGroup(idgroup).then(function (edata){
 									log('(Block ) transaction info: '+JSON.stringify(config.infoTransaction(edata)));
@@ -268,6 +286,10 @@ function createGroupByTeacher(socket, keyin, keyout)
 							socket.emit(keyout, error(msg))
 							log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
 							log('(Block ) info: '+e)
+
+							group.deleteGroup(idgroup).then(function (edata){
+								log('(Block ) transaction info: '+JSON.stringify(config.infoTransaction(edata)));
+							})
 						}
 
 					}
@@ -308,6 +330,201 @@ function createGroupByTeacher(socket, keyin, keyout)
 		}
 	});
 }
+
+function getInfoAllGroupTeacherManage(socket, keyin, keyout)
+{
+	socket.on(keyin, async function (data){
+		log('(Client) '+ID[socket.id]+'->'+keyin+': '+JSON.stringify(data));
+		if (LG[socket.id] != "none")
+		{
+			try
+			{
+				var userteacher = data.userteacher;
+				let ddata = await group.getInfoAllGroupTeacherManage(userteacher)
+				socket.emit(keyout, success(ddata, "get success"))
+				log('(Server) '+ID[socket.id]+'<-'+keyout+": "+JSON.stringify(ddata));
+			}
+			catch (e)
+			{
+				var msg = e;
+				socket.emit(keyout, error(msg))
+				log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+			}
+		}
+		else
+		{
+			var msg = "Must login before you get info";
+			socket.emit(keyout, error(msg))
+			log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+		}
+	});
+}
+
+function deleteGroupByTeacher(socket, keyin, keyout)
+{
+	socket.on(keyin, async function (data){
+		log('(Client) '+ID[socket.id]+'->'+keyin+': '+JSON.stringify(data));
+		if (LG[socket.id] == "teacher")
+		{
+			var idgroup = data.idgroup;
+			var userteacher = data.userteacher;
+			try
+			{
+				let namegroup = await group.getNameGroup(idgroup);
+				let status = await group.getStatusManage(userteacher, idgroup)
+				if (status == true)
+				{
+					try
+					{
+						let deleteManage = await group.deleteManage(userteacher, idgroup);
+						var tx = config.infoTransaction(deleteManage);
+						if (tx.status == true)
+						{
+							log('(Block ) transaction info: '+JSON.stringify(tx))
+							try
+							{
+								let deleteGroup = await group.deleteGroup(idgroup);
+								var tx = config.infoTransaction(deleteGroup);
+								if (tx.status == true)
+								{
+									
+									var ddata = {};
+									socket.emit(keyout, success(ddata, "delete Group success"))
+									log('(Server) '+ID[socket.id]+'<-'+keyout+": "+JSON.stringify(ddata));
+								}
+								else
+								{
+									var msg = 'delete Group false'
+									socket.emit(keyout, error(msg))
+									log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+									log('(Block ) transaction info: '+JSON.stringify(tx))
+								}
+							}
+							catch (e)
+							{
+								var msg = 'Error System!'
+								socket.emit(keyout, error(msg))
+								log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+								log('(Block ) transaction error: '+e)
+							}
+							
+						}
+						else
+						{
+							var msg = 'delete Group false'
+							socket.emit(keyout, error(msg))
+							log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+							log('(Block ) transaction info: '+JSON.stringify(tx))
+						}
+					}
+					catch (e)
+					{
+						var msg = 'Error System!'
+						socket.emit(keyout, error(msg))
+						log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+						log('(Block ) transaction error: '+e)
+					}
+				}
+				else
+				{
+					var msg = "You does'n manage "+namegroup;
+					socket.emit(keyout, error(msg))
+					log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+				}
+			}
+			catch (e)
+			{
+				var msg = e;
+				socket.emit(keyout, error(msg))
+				log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+			}
+		}
+		else if (LG[socket.id] == "student")
+		{
+			var msg = "You're a student, not a teacher";
+			socket.emit(keyout, error(msg))
+			log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+		}
+		else
+		{
+			var msg = "Must login before you delete group";
+			socket.emit(keyout, error(msg))
+			log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+		}
+	});
+}
+
+function editGroupByTeacher(socket, keyin, keyout)
+{
+	socket.on(keyin, async function (data){
+		log('(Client) '+ID[socket.id]+'->'+keyin+': '+JSON.stringify(data));
+		if (LG[socket.id] == "teacher")
+		{
+			var idgroup = data.idgroup;
+			var userteacher = data.userteacher;
+			var newname = data.newname;
+			try
+			{
+				let namegroup = await group.getNameGroup(idgroup);
+				let status = await group.getStatusManage(userteacher, idgroup)
+				if (status == true)
+				{
+					try
+					{
+						let editGroup = await group.editGroup(idgroup, newname);
+						var tx = config.infoTransaction(editGroup);
+						if (tx.status == true)
+						{
+							var ddata = {};
+							socket.emit(keyout, success(ddata, "edit Group success"))
+							log('(Server) '+ID[socket.id]+'<-'+keyout+": "+JSON.stringify(ddata));
+							log('(Block ) transaction info: '+JSON.stringify(tx))
+						}
+						else
+						{
+							var msg = 'eidt Group false'
+							socket.emit(keyout, error(msg))
+							log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+							log('(Block ) transaction info: '+JSON.stringify(tx))
+						}
+					}
+					catch (e)
+					{
+						var msg = 'Error System!'
+						socket.emit(keyout, error(msg))
+						log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+						log('(Block ) transaction error: '+e)
+					}
+				}
+				else
+				{
+					var msg = "You does'n manage "+namegroup;
+					socket.emit(keyout, error(msg))
+					log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+				}
+			}
+			catch (e)
+			{
+				var msg = e;
+				socket.emit(keyout, error(msg))
+				log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+			}
+		}
+		else if (LG[socket.id] == "student")
+		{
+			var msg = "You're a student, not a teacher";
+			socket.emit(keyout, error(msg))
+			log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+		}
+		else
+		{
+			var msg = "Must login before you delete group";
+			socket.emit(keyout, error(msg))
+			log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+		}
+	});
+}
+
 
 function success(data, msg)
 {

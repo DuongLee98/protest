@@ -382,7 +382,7 @@ function getTeacherOfGroup(group)
 	})
 }
 
-function groupExistMange(group)
+function groupExistManage(group)
 {
 	return new Promise(function(rs, rj)
 	{
@@ -392,9 +392,40 @@ function groupExistMange(group)
 	})
 }
 
+async function getInfoAllGroupTeacherManage(teacher)
+{
+	var arr = [];
+	let len = await getLengthGroupOfTeacher(teacher);
+	for (var i=0; i<len; i++)
+	{
+		var info = {};
+		try
+		{
+			let gid = await getGroupOfTeacher(teacher, i);
+			let gdate = await getDate(teacher, gid);
+			let gname = await getNameGroup(gid);
+			let gmember = await getLengthUserOfGroup(gid);
+
+			info.gid = gid;
+			info.gdate = gdate;
+			info.gname = gname;
+			info.gmember = gmember;
+			arr.push(info); 
+		}
+		catch(e)
+		{
+			throw new Error(e);
+		}
+	}
+	data = {};
+	data.len = len;
+	data.arr = arr;
+	return data;
+}
+
 // addGroup("testgroup").then(console.log).catch(console.log)
 // editGroup(1000, 'testgroup').then(console.log).catch(console.log)
-// deleteGroup(1000).then(console.log).catch(console.log)
+// deleteGroup(1003).then(console.log).catch(console.log)
 // getGid("testgroup").then(console.log);
 // getId(0).then(console.log)
 // getLengthId().then(console.log)
@@ -431,6 +462,8 @@ function groupExistMange(group)
 // getStatusManage("duonglee", 1000).then(console.log);
 // getTeacherOfGroup(1000).then(console.log);
 // groupExistMange(1000).then(console.log);
+//------------------------------------------------------------------------
+// getInfoAllGroupTeacherManage("xuanhuy").then(console.log);
 
 module.exports =
 {
@@ -464,5 +497,7 @@ module.exports =
 	getLengthGroupOfTeacher: getLengthGroupOfTeacher,
 	getStatusManage: getStatusManage,
 	getTeacherOfGroup: getTeacherOfGroup,
-	groupExistMange
+	groupExistManage: groupExistManage,
+
+	getInfoAllGroupTeacherManage: getInfoAllGroupTeacherManage
 }
