@@ -206,6 +206,18 @@ function userExist(user)
 	})
 }
 
+async function getAllStudent()
+{
+	var len = await getLengthUser();
+	var arr = [];
+	for (var i=0; i<len; i++)
+	{
+		var item = await getUser(i);
+		arr.push(item)
+	}
+	return arr;
+}
+
 // addUser("testuser", "testpass", "testname", "testphone").then(console.log);
 // deleteUser('testuser').then(console.log).catch(console.log);
 // editUser('testuser', '123', '456', '789').then(console.log).catch(console.log);
@@ -219,6 +231,7 @@ function userExist(user)
 // getPhoneUser('testuser').then(console.log).catch(console.log);
 // getUser(-1).then(console.log).catch(console.log);
 // userExist('testusers').then(console.log)
+// getAllStudent().then(console.log)
 
 module.exports =
 {
@@ -237,5 +250,7 @@ module.exports =
 	getLengthUser: getLengthUser,
 	getUser: getUser,
 
-	userExist
+	userExist,
+
+	getAllStudent: getAllStudent
 }

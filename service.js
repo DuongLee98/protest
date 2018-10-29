@@ -3,6 +3,7 @@ var http = require('http').Server(app);
 var io = require('socket.io')(http);
 let student = require('./ManageStudent');
 let teacher = require('./ManageTeacher');
+let group = require('./ManageGroup');
 var config = require('./config');
 
 let log = config.log
@@ -14,18 +15,29 @@ http.listen(3000, "0.0.0.0", function() {
     log('(Server) Listening to port:  ' + 3000);
 });
 
+ID = {};
+LG = {};
+
 io.on('connection', function(clientSocket){
     log('(Client) connected: '+ clientSocket.id);
+
+    ID[clientSocket.id] = clientSocket.id;
+    LG[clientSocket.id] = "none";
 
     login(clientSocket, 'login', 'rlogin')
     regs(clientSocket, 'regs', 'rreg')
     regt(clientSocket, 'regt', 'rreg')
+    createGroupByTeacher(clientSocket, 'createGroupByTeacher', 'rcreateGroupByTeacher');
 
     clientSocket.on('disconnect', function(){
         log('(Client) disconnected: '+ clientSocket.id);
+        delete ID[clientSocket.id];
+        delete LG[clientSocket.id];
     });
                    
 });
+
+
 
 function login(socket, keyin, keyout)
 {
@@ -40,11 +52,14 @@ function login(socket, keyin, keyout)
 			let ppass = await student.getPassUser(user);
 			if (pass == ppass)
 			{
+				ID[socket.id] = user;
+				LG[socket.id] = "student";
+				log('(Server) '+socket.id+'->'+user+" - student");
 				ddata = {};
 				ddata.name = await student.getNameUser(user);
 				ddata.phone = await student.getPhoneUser(user);
 				socket.emit(keyout, success(ddata, "student"))
-				log('(Server) '+socket.id+'<-'+keyout+": "+JSON.stringify(ddata));
+				log('(Server) '+ID[socket.id]+'<-'+keyout+": "+JSON.stringify(ddata));
 			}
 			else
 			{
@@ -58,12 +73,15 @@ function login(socket, keyin, keyout)
 			let ppass = await teacher.getPassUser(user);
 			if (pass == ppass)
 			{
+				ID[socket.id] = user;
+				LG[socket.id] = "teacher";
+				log('(Server) '+socket.id+'->'+user+" - teacher");
 				ddata = {};
 				ddata.name = await teacher.getNameUser(user);
 				ddata.phone = await teacher.getPhoneUser(user);
 				ddata.cmnd = await teacher.getIcUser(user);
 				socket.emit(keyout, success(ddata, "teacher"))
-				log('(Server) '+socket.id+'<-'+keyout+": "+JSON.stringify(ddata));
+				log('(Server) '+ID[socket.id]+'<-'+keyout+": "+JSON.stringify(ddata));
 			}
 			else
 			{
@@ -109,11 +127,7 @@ function regs(socket, keyin, keyout)
 			try
 			{
 				let reg = await student.addUser(user, pass, name, phone)
-				var tx = {};
-				tx.status = reg.status
-				tx.transactionHash = reg.transactionHash
-				tx.blockNumber = reg.blockNumber
-				tx.transactionIndex = reg.transactionIndex
+				var tx = config.infoTransaction(reg);
 				if (reg.status == true)
 				{
 					socket.emit(keyout, success({}, "student reg success"))
@@ -162,11 +176,7 @@ function regt(socket, keyin, keyout)
 			try
 			{
 				let reg = await teacher.addUser(user, pass, name, phone, cmnd)
-				var tx = {};
-				tx.status = reg.status
-				tx.transactionHash = reg.transactionHash
-				tx.blockNumber = reg.blockNumber
-				tx.transactionIndex = reg.transactionIndex
+				var tx = config.infoTransaction(reg);
 				if (reg.status == true)
 				{
 					socket.emit(keyout, success({}, "teacher reg success"))
@@ -190,6 +200,113 @@ function regt(socket, keyin, keyout)
 			}
 		}
 	})
+}
+
+function createGroupByTeacher(socket, keyin, keyout)
+{
+	socket.on(keyin, async function (data){
+		log('(Client) '+ID[socket.id]+'->'+keyin+': '+JSON.stringify(data));
+		if (LG[socket.id] == "teacher")
+		{
+			var namegroup = data.namegroup;
+			var userteacher = data.userteacher;
+
+			let existGroup = await group.existGroup(namegroup);
+			if (existGroup == false)
+			{
+				try
+				{
+					let addGroup = await group.addGroup(namegroup);
+					var tx = config.infoTransaction(addGroup);
+					if (tx.status == true)
+					{
+						log('(Block ) transaction info: '+JSON.stringify(tx))
+						try
+						{
+							let idgroup = await group.getGid(namegroup);
+							try
+							{
+								let addManage = await group.addManage(userteacher, idgroup);
+								var tx = config.infoTransaction(addManage);
+								if (tx.status == true)
+								{
+									var ddata = {};
+									data.namegroup = namegroup;
+									data.userteacher = userteacher;
+									data.idgroup = idgroup;
+									socket.emit(keyout, success(data, "create Group success"))
+									log('(Server) '+ID[socket.id]+'<-'+keyout+": "+JSON.stringify(data));
+									log('(Block ) transaction info: '+JSON.stringify(tx))
+								}
+								else
+								{
+									var msg = 'create Group false'
+									socket.emit(keyout, error(msg))
+									log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+									log('(Block ) transaction info: '+JSON.stringify(tx))
+
+									group.deleteGroup(idgroup).then(function (edata){
+										log('(Block ) transaction info: '+JSON.stringify(config.infoTransaction(edata)));
+									})
+								}
+							}
+							catch (e)
+							{
+								var msg = 'Error System!'
+								socket.emit(keyout, error(msg))
+								log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+								log('(Block ) transaction error: '+e)
+
+								group.deleteGroup(idgroup).then(function (edata){
+									log('(Block ) transaction info: '+JSON.stringify(config.infoTransaction(edata)));
+								})
+							}
+						}
+						catch(e)
+						{
+							var msg = e;
+							socket.emit(keyout, error(msg))
+							log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+							log('(Block ) info: '+e)
+						}
+
+					}
+					else
+					{
+						var msg = 'addGroup false'
+						socket.emit(keyout, error(msg))
+						log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+						log('(Block ) transaction info: '+JSON.stringify(tx))
+					}
+				}
+				catch(e)
+				{
+					var msg = 'Error System!'
+					socket.emit(keyout, error(msg))
+					log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+					log('(Block ) transaction error: '+e)
+				}
+			}
+			else
+			{
+				var msg = "Group exist";
+				socket.emit(keyout, error(msg))
+				log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+			}
+		}
+		else if (LG[socket.id] == "student")
+		{
+			var msg = "You're a student, not a teacher";
+			socket.emit(keyout, error(msg))
+			log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+		}
+		else
+		{
+			var msg = "Must login before you create group";
+			socket.emit(keyout, error(msg))
+			log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+		}
+	});
 }
 
 function success(data, msg)
