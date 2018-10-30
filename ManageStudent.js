@@ -277,7 +277,7 @@ async function getInfoAllStudent()
 // setPhoneUser('testuser', '0568417').then(console.log).catch(console.log);
 
 // getLengthUser().then(console.log);
-// getNameUser('testuser').then(console.log).catch(console.log);
+// getNameUser('duonglee').then(console.log).catch(console.log);
 // getPassUser('testuser').then(console.log).catch(console.log);
 // getPhoneUser('testuser').then(console.log).catch(console.log);
 // getUser(-1).then(console.log).catch(console.log);

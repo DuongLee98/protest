@@ -141,6 +141,16 @@ function existGroup(name)
 	})
 }
 
+function existIdGroup(idg)
+{
+	return new Promise(function(rs, rj)
+	{
+		group.methods.existIdGroup(idg).call().then(function(rt){
+			return rs(rt);
+		})
+	})
+}
+
 function groupAddUser(group, user)
 {
 	log('(Server) send... groupAddUser');
@@ -423,22 +433,45 @@ async function getInfoAllGroupTeacherManage(teacher)
 	return data;
 }
 
+async function getAllStudentOfGroup(group)
+{
+	let len = await getLengthUserOfGroup(group)
+	let arr = [];
+	for (var i = 0; i<len; i++)
+	{
+		info = {};
+		try
+		{
+			let nameuser = await getUserOfGroup(group, i);
+			arr.push(nameuser);
+		}
+		catch(e)
+		{
+			throw new Error(e)
+		}
+	}
+	data = {};
+	data.len = len;
+	data.arr = arr;
+	return data;
+}
+
 // addGroup("testgroup").then(console.log).catch(console.log)
 // editGroup(1000, 'testgroup').then(console.log).catch(console.log)
 // deleteGroup(1003).then(console.log).catch(console.log)
 // getGid("testgroup").then(console.log);
 // getId(0).then(console.log)
 // getLengthId().then(console.log)
-// getNameGroup(1000).then(console.log)
+// getNameGroup(1007).then(console.log)
 // existGroup('testgroup').then(console.log)
 //-----------------------------------------------------------------------
-// groupAddUser(1000, "duonglee").then(function(data){
+// groupAddUser(1007, "duonglee").then(function(data){
 // 	console.log(config.infoTransaction(data));
 // });
 // getGroupOfUser("duonglee", 0).then(console.log);
 // getLengthGroupOfUser("duonglee").then(console.log);
 // getLengthUserOfGroup(1000).then(console.log);
-// getStatus("duonglee", 1000).then(console.log);
+// getStatus("duonglee", 1007).then(console.log);
 // getUserOfGroup(1000, 0).then(console.log);
 // groupRefuseUser(1000, "duonglee").then(function(data){
 // 	console.log(config.infoTransaction(data));
@@ -457,13 +490,14 @@ async function getInfoAllGroupTeacherManage(teacher)
 // 	console.log(config.infoTransaction(data));
 // })
 // getDate("xuanhuy", 1003).then(console.log);
-// getGroupOfTeacher("xuanhuy", 1).then(console.log);
+// getGroupOfTeacher("xuanhuy", 0).then(console.log);
 // getLengthGroupOfTeacher("xuanhuy").then(console.log);
 // getStatusManage("duonglee", 1000).then(console.log);
 // getTeacherOfGroup(1000).then(console.log);
 // groupExistMange(1000).then(console.log);
 //------------------------------------------------------------------------
 // getInfoAllGroupTeacherManage("xuanhuy").then(console.log);
+// getAllStudentOfGroup(1007).then(console.log);
 
 module.exports =
 {
@@ -475,7 +509,8 @@ module.exports =
 	getLengthId: getLengthId,
 	getNameGroup: getNameGroup,
 	getGid: getGid,
-
+	
+	existIdGroup: existIdGroup,
 	existGroup: existGroup,
 
 	groupAddUser: groupAddUser,
@@ -499,5 +534,6 @@ module.exports =
 	getTeacherOfGroup: getTeacherOfGroup,
 	groupExistManage: groupExistManage,
 
-	getInfoAllGroupTeacherManage: getInfoAllGroupTeacherManage
+	getInfoAllGroupTeacherManage: getInfoAllGroupTeacherManage,
+	getAllStudentOfGroup: getAllStudentOfGroup
 }

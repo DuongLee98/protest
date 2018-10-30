@@ -32,13 +32,13 @@ io.on('connection', function(clientSocket){
     deleteGroupByTeacher(clientSocket, 'deleteGroupByTeacher', 'rdeleteGroupByTeacher');
     editGroupByTeacher(clientSocket, 'editGroupByTeacher', 'reditGroupByTeacher');
     searchInfo(clientSocket, 'searchInfo', 'rsearchInfo');
+    getInfoOfGroup(clientSocket, 'getInfoOfGroup', 'rgetInfoOfGroup');
 
     clientSocket.on('disconnect', function(){
         log('(Client) disconnected: '+ clientSocket.id);
         delete ID[clientSocket.id];
         delete LG[clientSocket.id];
-    });
-                   
+    });   
 });
 
 
@@ -530,6 +530,7 @@ function searchInfo(socket, keyin, keyout)
 {
 	socket.on(keyin,async function (data)
 	{
+		log('(Client) '+socket.id+'->'+keyin+': '+JSON.stringify(data))
 		if (LG[socket.id] != "none")
 		{
 			try
@@ -571,12 +572,69 @@ function searchInfo(socket, keyin, keyout)
 				dataout = {};
 				dataout.len = lenout;
 				dataout.arr = arrout;
-				socket.emit(keyout, success(dataout));
+				socket.emit(keyout, success(dataout, "success"));
 				log('(Server) '+ID[socket.id]+'<-'+keyout+": "+JSON.stringify(dataout));
 			}
 			catch(e)
 			{
 				var msg = e;
+				socket.emit(keyout, error(msg))
+				log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+			}
+		}
+		else
+		{
+			var msg = "Must login before you delete group";
+			socket.emit(keyout, error(msg))
+			log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+		}
+	})
+}
+
+function getInfoOfGroup(socket, keyin, keyout)
+{
+	socket.on(keyin,async function (data)
+	{
+		log('(Client) '+socket.id+'->'+keyin+': '+JSON.stringify(data))
+		if (LG[socket.id] != "none")
+		{
+			var idg = data.idgroup;
+			let existGroup = await group.existIdGroup(idg)
+			if (existGroup == true)
+			{
+				try
+				{
+					let allstudent = await group.getAllStudentOfGroup(idg);
+					console.log(allstudent)
+					let len = allstudent.len;
+					let arruser = allstudent.arr;
+					var arr = [];
+					for (var i = 0; i<len; i++)
+					{
+						var info = {};
+						info.user = arruser[i];
+						let namestudent = await student.getNameUser(info.user);
+						let status = await group.getStatus(arruser[i], idg);
+						info.name = namestudent;
+						info.status = status;
+						arr.push(info);
+					}
+					ddata = {};
+					ddata.len = len;
+					ddata.arr = arr;
+					socket.emit(keyout, success(ddata, "success"));
+					log('(Server) '+ID[socket.id]+'<-'+keyout+": "+JSON.stringify(ddata));
+				}
+				catch(e)
+				{
+					var msg = e;
+					socket.emit(keyout, error(msg))
+					log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+				}
+			}
+			else
+			{
+				var msg = "Group doesn't exist";
 				socket.emit(keyout, error(msg))
 				log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
 			}
