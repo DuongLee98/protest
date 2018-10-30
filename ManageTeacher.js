@@ -252,6 +252,50 @@ async function getAllTeacher()
 	return arr;
 }
 
+async function getInfoTeacher(user)
+{
+	var info = {};
+	try
+	{
+		var name = await getNameUser(user);
+		var phone = await getPhoneUser(user);
+		var CMND = await getIcUser(user);
+		info.name = name;
+		info.phone = phone;
+		info.cmnd = CMND;
+		return info;
+	}
+	catch(e)
+	{
+		throw new Error(e);
+	}
+}
+
+async function getInfoAllTeacher()
+{
+	var len = await getLengthUser();
+	var arr = [];
+	for (var i=0; i<len; i++)
+	{
+		var info = {};
+		try
+		{
+			var item = await getUser(i);
+			info = await getInfoTeacher(item);
+			info.item = item;
+			arr.push(info)
+		}
+		catch(e)
+		{
+			throw new Error(e);
+		}
+	}
+	data = {};
+	data.len = len;
+	data.arr = arr;
+	return data;
+}
+
 // addUser("testuser", "testpass", "testname", "testphone").then(console.log);
 // deleteUser('testuser').then(console.log).catch(console.log);
 // editUser('testuser', '123', '456', '789').then(console.log).catch(console.log);
@@ -289,5 +333,6 @@ module.exports =
 	getLengthUser: getLengthUser,
 	getUser: getUser,
 
-	userExist
+	userExist,
+	getInfoAllTeacher: getInfoAllTeacher
 }

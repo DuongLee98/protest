@@ -212,11 +212,62 @@ async function getAllStudent()
 	var arr = [];
 	for (var i=0; i<len; i++)
 	{
-		var item = await getUser(i);
-		arr.push(item)
+		try
+		{
+			var item = await getUser(i);
+			arr.push(item)
+		}
+		catch(e)
+		{
+			throw new Error(e);
+		}
 	}
 	return arr;
 }
+
+async function getInfoStudent(user)
+{
+	var info = {};
+	try
+	{
+		var name = await getNameUser(user);
+		var phone = await getPhoneUser(user);
+		info.name = name;
+		info.phone = phone;
+		return info;
+	}
+	catch(e)
+	{
+		throw new Error(e);
+	}
+}
+
+async function getInfoAllStudent()
+{
+	var len = await getLengthUser();
+	var arr = [];
+	for (var i=0; i<len; i++)
+	{
+		var info = {};
+		try
+		{
+			var item = await getUser(i);
+			info = await getInfoStudent(item);
+			info.item = item;
+			arr.push(info)
+		}
+		catch(e)
+		{
+			throw new Error(e);
+		}
+	}
+	data = {};
+	data.len = len;
+	data.arr = arr;
+	return data;
+}
+
+// getInfoAllStudent().then(console.log);
 
 // addUser("testuser", "testpass", "testname", "testphone").then(console.log);
 // deleteUser('testuser').then(console.log).catch(console.log);
@@ -252,5 +303,6 @@ module.exports =
 
 	userExist,
 
-	getAllStudent: getAllStudent
+	getAllStudent: getAllStudent,
+	getInfoAllStudent: getInfoAllStudent
 }

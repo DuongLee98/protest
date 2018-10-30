@@ -31,6 +31,7 @@ io.on('connection', function(clientSocket){
     getInfoAllGroupTeacherManage(clientSocket, 'getInfoAllGroupTeacherManage', 'rgetInfoAllGroupTeacherManage');
     deleteGroupByTeacher(clientSocket, 'deleteGroupByTeacher', 'rdeleteGroupByTeacher');
     editGroupByTeacher(clientSocket, 'editGroupByTeacher', 'reditGroupByTeacher');
+    searchInfo(clientSocket, 'searchInfo', 'rsearchInfo');
 
     clientSocket.on('disconnect', function(){
         log('(Client) disconnected: '+ clientSocket.id);
@@ -525,6 +526,69 @@ function editGroupByTeacher(socket, keyin, keyout)
 	});
 }
 
+function searchInfo(socket, keyin, keyout)
+{
+	socket.on(keyin,async function (data)
+	{
+		if (LG[socket.id] != "none")
+		{
+			try
+			{
+				var lenout = 0;
+				var arrout = [];
+				utype = data.utype;
+				infosearch = data.infosearch;
+				if (data.utype == "student" || data.utype == "all")
+				{
+					let dataStudent = await student.getInfoAllStudent();
+					var len = dataStudent.len;
+					var arr = dataStudent.arr;
+					for (var i = 0; i<len; i++)
+					{
+						var dataToString = JSON.stringify(arr[i])
+						if (dataToString.indexOf(infosearch) != -1)
+						{
+							arrout.push(arr[i]);
+							lenout++;
+						}
+					}
+				}
+				if (data.utype == "teacher" || data.utype == "all")
+				{
+					let dataTeacher = await teacher.getInfoAllTeacher();
+					var len = dataTeacher.len;
+					var arr = dataTeacher.arr;
+					for (var i = 0; i<len; i++)
+					{
+						var dataToString = JSON.stringify(arr[i])
+						if (dataToString.indexOf(infosearch) != -1)
+						{
+							arrout.push(arr[i]);
+							lenout++;
+						}
+					}
+				}
+				dataout = {};
+				dataout.len = lenout;
+				dataout.arr = arrout;
+				socket.emit(keyout, success(dataout));
+				log('(Server) '+ID[socket.id]+'<-'+keyout+": "+JSON.stringify(dataout));
+			}
+			catch(e)
+			{
+				var msg = e;
+				socket.emit(keyout, error(msg))
+				log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+			}
+		}
+		else
+		{
+			var msg = "Must login before you delete group";
+			socket.emit(keyout, error(msg))
+			log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+		}
+	})
+}
 
 function success(data, msg)
 {
