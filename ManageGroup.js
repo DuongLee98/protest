@@ -34,7 +34,9 @@ function addGroup(name)
 			{
 				web3.eth.sendSignedTransaction(signedTx.rawTransaction).on('receipt', function (receipt) {
 		            return resolve(receipt);
-		 		});
+		 		}).on('error', function(err){
+		 			return reject(err);
+		 		})
 			}
 		});
 	});
@@ -55,7 +57,9 @@ function deleteGroup(id)
 			{
 				web3.eth.sendSignedTransaction(signedTx.rawTransaction).on('receipt', function (receipt) {
 		            return resolve(receipt);
-		 		});
+		 		}).on('error', function(err){
+		 			return reject(err);
+		 		})
 			}
 		});
 	});
@@ -76,7 +80,9 @@ function editGroup(id, name)
 			{
 				web3.eth.sendSignedTransaction(signedTx.rawTransaction).on('receipt', function (receipt) {
 		            return resolve(receipt);
-		 		});
+		 		}).on('error', function(err){
+		 			return reject(err);
+		 		})
 			}
 		});
 	});
@@ -166,7 +172,9 @@ function groupAddUser(group, user)
 			{
 				web3.eth.sendSignedTransaction(signedTx.rawTransaction).on('receipt', function (receipt) {
 		            return resolve(receipt);
-		 		});
+		 		}).on('error', function(err){
+		 			return reject(err);
+		 		})
 			}
 		});
 	});
@@ -187,7 +195,9 @@ function groupRefuseUser(group, user)
 			{
 				web3.eth.sendSignedTransaction(signedTx.rawTransaction).on('receipt', function (receipt) {
 		            return resolve(receipt);
-		 		});
+		 		}).on('error', function(err){
+		 			return reject(err);
+		 		})
 			}
 		});
 	});
@@ -208,7 +218,9 @@ function userJoinGroup(user, group)
 			{
 				web3.eth.sendSignedTransaction(signedTx.rawTransaction).on('receipt', function (receipt) {
 		            return resolve(receipt);
-		 		});
+		 		}).on('error', function(err){
+		 			return reject(err);
+		 		})
 			}
 		});
 	});
@@ -229,7 +241,9 @@ function userRefuseGroup(user, group)
 			{
 				web3.eth.sendSignedTransaction(signedTx.rawTransaction).on('receipt', function (receipt) {
 		            return resolve(receipt);
-		 		});
+		 		}).on('error', function(err){
+		 			return reject(err);
+		 		})
 			}
 		});
 	});
@@ -306,7 +320,9 @@ function addManage(user, group)
 			{
 				web3.eth.sendSignedTransaction(signedTx.rawTransaction).on('receipt', function (receipt) {
 		            return resolve(receipt);
-		 		});
+		 		}).on('error', function(err){
+		 			return reject(err);
+		 		})
 			}
 		});
 	});
@@ -327,7 +343,9 @@ function deleteManage(user, group)
 			{
 				web3.eth.sendSignedTransaction(signedTx.rawTransaction).on('receipt', function (receipt) {
 		            return resolve(receipt);
-		 		});
+		 		}).on('error', function(err){
+		 			return reject(err);
+		 		})
 			}
 		});
 	});
@@ -456,6 +474,37 @@ async function getAllStudentOfGroup(group)
 	return data;
 }
 
+async function deleteAllStudentOfGroup(idg)
+{
+	let len = await getLengthUserOfGroup(idg);
+	var arr = [];
+	var length = 0;
+	for (var i=0; i<len; i++)
+	{
+		try
+		{
+			let user = await getUserOfGroup(idg, i);
+			info = {};
+			let deleteUser = await groupRefuseUser(idg, user);
+			info = config.infoTransaction(deleteUser);
+			arr.push(info);
+			length++;
+		}
+		catch (e)
+		{
+			throw new Error(e);
+		}
+	}
+	var data = {};
+	data.len = length;
+	data.arr = arr;
+	if (len == length)
+		data.status = true;
+	else
+		data.status = false;
+	return data;
+}
+
 // addGroup("testgroup").then(console.log).catch(console.log)
 // editGroup(1000, 'testgroup').then(console.log).catch(console.log)
 // deleteGroup(1003).then(console.log).catch(console.log)
@@ -464,16 +513,17 @@ async function getAllStudentOfGroup(group)
 // getLengthId().then(console.log)
 // getNameGroup(1007).then(console.log)
 // existGroup('testgroup').then(console.log)
+// existIdGroup(1009).then(console.log);
 //-----------------------------------------------------------------------
 // groupAddUser(1007, "duonglee").then(function(data){
 // 	console.log(config.infoTransaction(data));
 // });
 // getGroupOfUser("duonglee", 0).then(console.log);
 // getLengthGroupOfUser("duonglee").then(console.log);
-// getLengthUserOfGroup(1000).then(console.log);
+// getLengthUserOfGroup(1009).then(console.log);
 // getStatus("duonglee", 1007).then(console.log);
-// getUserOfGroup(1000, 0).then(console.log);
-// groupRefuseUser(1000, "duonglee").then(function(data){
+// getUserOfGroup(1007, 0).then(console.log);
+// groupRefuseUser(1007, "HAT").then(function(data){
 // 	console.log(config.infoTransaction(data));
 // })
 // userJoinGroup("duonglee", 1000).then(function(data){
@@ -535,5 +585,6 @@ module.exports =
 	groupExistManage: groupExistManage,
 
 	getInfoAllGroupTeacherManage: getInfoAllGroupTeacherManage,
-	getAllStudentOfGroup: getAllStudentOfGroup
+	getAllStudentOfGroup: getAllStudentOfGroup,
+	deleteAllStudentOfGroup: deleteAllStudentOfGroup
 }

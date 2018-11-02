@@ -24,7 +24,9 @@ function addUser(user, password, name, phone)
 			{
 				web3.eth.sendSignedTransaction(signedTx.rawTransaction).on('receipt', function (receipt) {
 		            return resolve(receipt);
-		 		});
+		 		}).on('error', function(err){
+		 			return reject(err);
+		 		})
 			}
 		});
 	})
@@ -45,7 +47,9 @@ function deleteUser(user)
 			{
 				web3.eth.sendSignedTransaction(signedTx.rawTransaction).on('receipt', function (receipt) {
 		            return resolve(receipt);
-		 		});
+		 		}).on('error', function(err){
+		 			return reject(err);
+		 		})
 			}
 		});
 	})
@@ -66,7 +70,9 @@ function editUser(user, password, name, phone)
 			{
 				web3.eth.sendSignedTransaction(signedTx.rawTransaction).on('receipt', function (receipt) {
 		            return resolve(receipt);
-		 		});
+		 		}).on('error', function(err){
+		 			return reject(err);
+		 		})
 			}
 		});
 	})
@@ -87,7 +93,9 @@ function setNameUser(user, name)
 			{
 				web3.eth.sendSignedTransaction(signedTx.rawTransaction).on('receipt', function (receipt) {
 		            return resolve(receipt);
-		 		});
+		 		}).on('error', function(err){
+		 			return reject(err);
+		 		})
 			}
 		});
 	})
@@ -108,7 +116,9 @@ function setPassUser(user, pass)
 			{
 				web3.eth.sendSignedTransaction(signedTx.rawTransaction).on('receipt', function (receipt) {
 		            return resolve(receipt);
-		 		});
+		 		}).on('error', function(err){
+		 			return reject(err);
+		 		})
 			}
 		});
 	})
@@ -129,7 +139,9 @@ function setPhoneUser(user, phone)
 			{
 				web3.eth.sendSignedTransaction(signedTx.rawTransaction).on('receipt', function (receipt) {
 		            return resolve(receipt);
-		 		});
+		 		}).on('error', function(err){
+		 			return reject(err);
+		 		})
 			}
 		});
 	})
@@ -283,6 +295,7 @@ async function getInfoAllStudent()
 // getUser(-1).then(console.log).catch(console.log);
 // userExist('testusers').then(console.log)
 // getAllStudent().then(console.log)
+// getInfoAllStudent().then(console.log);
 
 module.exports =
 {
@@ -304,5 +317,6 @@ module.exports =
 	userExist,
 
 	getAllStudent: getAllStudent,
-	getInfoAllStudent: getInfoAllStudent
+	getInfoAllStudent: getInfoAllStudent,
+	getInfoStudent: getInfoStudent
 }

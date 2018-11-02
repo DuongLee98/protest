@@ -24,7 +24,9 @@ function addUser(user, password, name, phone, ic)
 			{
 				web3.eth.sendSignedTransaction(signedTx.rawTransaction).on('receipt', function (receipt) {
 		            return resolve(receipt);
-		 		});
+		 		}).on('error', function(err){
+		 			return reject(err);
+		 		})
 			}
 		});
 	})
@@ -45,7 +47,9 @@ function deleteUser(user)
 			{
 				web3.eth.sendSignedTransaction(signedTx.rawTransaction).on('receipt', function (receipt) {
 		            return resolve(receipt);
-		 		});
+		 		}).on('error', function(err){
+		 			return reject(err);
+		 		})
 			}
 		});
 	})
@@ -66,7 +70,9 @@ function editUser(user, password, name, phone, ic)
 			{
 				web3.eth.sendSignedTransaction(signedTx.rawTransaction).on('receipt', function (receipt) {
 		            return resolve(receipt);
-		 		});
+		 		}).on('error', function(err){
+		 			return reject(err);
+		 		})
 			}
 		});
 	})
@@ -87,7 +93,9 @@ function setNameUser(user, name)
 			{
 				web3.eth.sendSignedTransaction(signedTx.rawTransaction).on('receipt', function (receipt) {
 		            return resolve(receipt);
-		 		});
+		 		}).on('error', function(err){
+		 			return reject(err);
+		 		})
 			}
 		});
 	})
@@ -108,7 +116,9 @@ function setPassUser(user, pass)
 			{
 				web3.eth.sendSignedTransaction(signedTx.rawTransaction).on('receipt', function (receipt) {
 		            return resolve(receipt);
-		 		});
+		 		}).on('error', function(err){
+		 			return reject(err);
+		 		})
 			}
 		});
 	})
@@ -129,7 +139,9 @@ function setPhoneUser(user, phone)
 			{
 				web3.eth.sendSignedTransaction(signedTx.rawTransaction).on('receipt', function (receipt) {
 		            return resolve(receipt);
-		 		});
+		 		}).on('error', function(err){
+		 			return reject(err);
+		 		})
 			}
 		});
 	})
@@ -150,7 +162,9 @@ function setIcUser(user, ic)
 			{
 				web3.eth.sendSignedTransaction(signedTx.rawTransaction).on('receipt', function (receipt) {
 		            return resolve(receipt);
-		 		});
+		 		}).on('error', function(err){
+		 			return reject(err);
+		 		})
 			}
 		});
 	})
