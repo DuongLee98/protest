@@ -24,6 +24,7 @@ io.on('connection', function(clientSocket){
     ID[clientSocket.id] = clientSocket.id;
     LG[clientSocket.id] = "none";
 
+    //teacher
     login(clientSocket, 'login', 'rlogin')
     regs(clientSocket, 'regs', 'rreg')
     regt(clientSocket, 'regt', 'rreg')
@@ -36,6 +37,9 @@ io.on('connection', function(clientSocket){
     groupAddOrInviteStudentByTeacher(clientSocket, 'groupAddOrInviteStudentByTeacher', 'rgroupAddOrInviteStudentByTeacher');
     groupDeleteOrRefuseStudentByTeacher(clientSocket, 'groupDeleteOrRefuseStudentByTeacher', 'rgroupDeleteOrRefuseStudentByTeacher');
     getInfoOfStudent(clientSocket, 'getInfoOfStudent', 'rgetInfoOfStudent');
+
+    //Student
+    getInfoAllGroupStudentJoin(clientSocket, 'getInfoAllGroupStudentJoin', 'rgetInfoAllGroupStudentJoin');
 
     clientSocket.on('disconnect', function(){
         log('(Client) disconnected: '+ clientSocket.id);
@@ -563,6 +567,7 @@ function searchInfo(socket, keyin, keyout)
 						var dataToString = JSON.stringify(arr[i])
 						if (dataToString.indexOf(infosearch) != -1)
 						{
+							arr[i].type = "student"
 							arrout.push(arr[i]);
 							lenout++;
 						}
@@ -578,6 +583,7 @@ function searchInfo(socket, keyin, keyout)
 						var dataToString = JSON.stringify(arr[i])
 						if (dataToString.indexOf(infosearch) != -1)
 						{
+							arr[i].type = "teacher"
 							arrout.push(arr[i]);
 							lenout++;
 						}
@@ -618,6 +624,8 @@ function getInfoOfGroup(socket, keyin, keyout)
 			{
 				try
 				{
+					let tuser = await group.getTeacherOfGroup(idg);
+					let tname = await teacher.getNameUser(tuser);
 					let allstudent = await group.getAllStudentOfGroup(idg);
 					let len = allstudent.len;
 					let arruser = allstudent.arr;
@@ -633,6 +641,8 @@ function getInfoOfGroup(socket, keyin, keyout)
 						arr.push(info);
 					}
 					ddata = {};
+					ddata.tuser = tuser;
+					ddata.tname = tname;
 					ddata.len = len;
 					ddata.arr = arr;
 					socket.emit(keyout, success(ddata, "success"));
@@ -862,6 +872,39 @@ function getInfoOfStudent(socket, keyin, keyout)
 			log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
 		}
 	})
+}
+
+function getInfoAllGroupStudentJoin(socket, keyin, keyout)
+{
+	socket.on(keyin, async function (data){
+		log('(Client) '+ID[socket.id]+'->'+keyin+': '+JSON.stringify(data));
+		if (LG[socket.id] != "none")
+		{
+			try
+			{
+				var suser = data.suser;
+				let ddata = await group.getInfoAllGroupStudentJoin(suser)
+				for (var i = 0; i<ddata.len; i++)
+				{
+					ddata.arr[i].tname = await teacher.getNameUser(ddata.arr[i].tuser);
+				}
+				socket.emit(keyout, success(ddata, "get success"))
+				log('(Server) '+ID[socket.id]+'<-'+keyout+": "+JSON.stringify(ddata));
+			}
+			catch (e)
+			{
+				var msg = e;
+				socket.emit(keyout, error(msg))
+				log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+			}
+		}
+		else
+		{
+			var msg = "Must login before you get info";
+			socket.emit(keyout, error(msg))
+			log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+		}
+	});
 }
 
 function success(data, msg)

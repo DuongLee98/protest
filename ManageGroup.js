@@ -505,6 +505,38 @@ async function deleteAllStudentOfGroup(idg)
 	return data;
 }
 
+async function getInfoAllGroupStudentJoin(student)
+{
+	var arr = [];
+	let len = await getLengthGroupOfUser(student);
+	for (var i=0; i<len; i++)
+	{
+		var info = {};
+		try
+		{
+			let gid = await getGroupOfUser(student, i);
+			let status = await getStatus(student, gid);
+			let gname = await getNameGroup(gid);
+			let gmember = await getLengthUserOfGroup(gid);
+			let userteacher = await getTeacherOfGroup(gid);
+			info.gid = gid;
+			info.status = status;
+			info.gname = gname;
+			info.gmember = gmember;
+			info.tuser = userteacher;
+			arr.push(info);
+		}
+		catch(e)
+		{
+			throw new Error(e);
+		}
+	}
+	data = {};
+	data.len = len;
+	data.arr = arr;
+	return data;
+}
+
 // addGroup("testgroup").then(console.log).catch(console.log)
 // editGroup(1000, 'testgroup').then(console.log).catch(console.log)
 // deleteGroup(1003).then(console.log).catch(console.log)
@@ -548,6 +580,7 @@ async function deleteAllStudentOfGroup(idg)
 //------------------------------------------------------------------------
 // getInfoAllGroupTeacherManage("xuanhuy").then(console.log);
 // getAllStudentOfGroup(1007).then(console.log);
+// getInfoAllGroupStudentJoin("duonglee").then(console.log);
 
 module.exports =
 {
@@ -586,5 +619,6 @@ module.exports =
 
 	getInfoAllGroupTeacherManage: getInfoAllGroupTeacherManage,
 	getAllStudentOfGroup: getAllStudentOfGroup,
-	deleteAllStudentOfGroup: deleteAllStudentOfGroup
+	deleteAllStudentOfGroup: deleteAllStudentOfGroup,
+	getInfoAllGroupStudentJoin: getInfoAllGroupStudentJoin
 }
