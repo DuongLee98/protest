@@ -348,5 +348,6 @@ module.exports =
 	getUser: getUser,
 
 	userExist,
-	getInfoAllTeacher: getInfoAllTeacher
+	getInfoAllTeacher: getInfoAllTeacher,
+	getInfoTeacher: getInfoTeacher
 }

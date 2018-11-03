@@ -37,6 +37,9 @@ io.on('connection', function(clientSocket){
     groupAddOrInviteStudentByTeacher(clientSocket, 'groupAddOrInviteStudentByTeacher', 'rgroupAddOrInviteStudentByTeacher');
     groupDeleteOrRefuseStudentByTeacher(clientSocket, 'groupDeleteOrRefuseStudentByTeacher', 'rgroupDeleteOrRefuseStudentByTeacher');
     getInfoOfStudent(clientSocket, 'getInfoOfStudent', 'rgetInfoOfStudent');
+    studentJoinOrAcceptGroup(clientSocket, 'studentJoinOrAcceptGroup', 'rstudentJoinOrAcceptGroup')
+    studentExitOrRefuseGroup(clientSocket, 'studentExitOrRefuseGroup', 'rstudentExitOrRefuseGroup')
+    getInfoOfTeacher(clientSocket, 'getInfoOfTeacher', 'rgetInfoOfTeacher');
 
     //Student
     getInfoAllGroupStudentJoin(clientSocket, 'getInfoAllGroupStudentJoin', 'rgetInfoAllGroupStudentJoin');
@@ -570,6 +573,8 @@ function searchInfo(socket, keyin, keyout)
 							arr[i].type = "student"
 							arrout.push(arr[i]);
 							lenout++;
+							if (lenout >= 5)
+								break;
 						}
 					}
 				}
@@ -586,6 +591,27 @@ function searchInfo(socket, keyin, keyout)
 							arr[i].type = "teacher"
 							arrout.push(arr[i]);
 							lenout++;
+							if (lenout >= 5)
+								break;
+						}
+					}
+				}
+				if (data.utype == "group" || data.utype == "all")
+				{
+					let dataGroup = await group.getInfoAllGroup();
+					var len = dataGroup.len;
+					var arr = dataGroup.arr;
+					for (var i = 0; i<len; i++)
+					{
+						arr[i].tname = await teacher.getNameUser(arr[i].tuser);
+						var dataToString = JSON.stringify(arr[i])
+						if (dataToString.indexOf(infosearch) != -1)
+						{
+							arr[i].type = "group"
+							arrout.push(arr[i]);
+							lenout++;
+							if (lenout >= 5)
+								break;
 						}
 					}
 				}
@@ -683,37 +709,47 @@ function groupAddOrInviteStudentByTeacher(socket, keyin, keyout)
 			try
 			{
 				let namegroup = await group.getNameGroup(idgroup);
-				let status = await group.getStatusManage(tuser, idgroup)
-				if (status == true)
+				let statusM = await group.getStatusManage(tuser, idgroup)
+				if (statusM == true)
 				{
 					let existS = await student.userExist(suser);
 					if (existS == true)
 					{
-						try
+						let status = await group.getStatus(suser, idgroup);
+						if (status != 1 && status != 3)
 						{
-							let addStudent = await group.groupAddUser(idgroup, suser);
-							var tx = config.infoTransaction(addStudent);
-							if (tx.status == true)
+							try
 							{
-								var ddata = {};
-								socket.emit(keyout, success(ddata, "add Student success"))
-								log('(Server) '+ID[socket.id]+'<-'+keyout+": "+JSON.stringify(ddata));
-								log('(Block ) transaction info: '+JSON.stringify(tx))
+								let addStudent = await group.groupAddUser(idgroup, suser);
+								var tx = config.infoTransaction(addStudent);
+								if (tx.status == true)
+								{
+									var ddata = {};
+									socket.emit(keyout, success(ddata, "add Student success"))
+									log('(Server) '+ID[socket.id]+'<-'+keyout+": "+JSON.stringify(ddata));
+									log('(Block ) transaction info: '+JSON.stringify(tx))
+								}
+								else
+								{
+									var msg = 'add Student false'
+									socket.emit(keyout, error(msg))
+									log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+									log('(Block ) transaction info: '+JSON.stringify(tx))
+								}
 							}
-							else
+							catch (e)
 							{
-								var msg = 'add Student false'
+								var msg = 'Error System!'
 								socket.emit(keyout, error(msg))
 								log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
-								log('(Block ) transaction info: '+JSON.stringify(tx))
+								log('(Block ) transaction error: '+e)
 							}
 						}
-						catch (e)
+						else
 						{
-							var msg = 'Error System!'
+							var msg = "Student is already in group";
 							socket.emit(keyout, error(msg))
 							log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
-							log('(Block ) transaction error: '+e)
 						}
 					}
 					else
@@ -764,37 +800,47 @@ function groupDeleteOrRefuseStudentByTeacher(socket, keyin, keyout)
 			try
 			{
 				let namegroup = await group.getNameGroup(idgroup);
-				let status = await group.getStatusManage(tuser, idgroup)
-				if (status == true)
+				let statusM = await group.getStatusManage(tuser, idgroup)
+				if (statusM == true)
 				{
 					let existS = await student.userExist(suser);
 					if (existS == true)
 					{
-						try
+						let status = await group.getStatus(suser, idgroup);
+						if (status != 0 && status != 5)
 						{
-							let deleteStudent = await group.groupRefuseUser(idgroup, suser);
-							var tx = config.infoTransaction(deleteStudent);
-							if (tx.status == true)
+							try
 							{
-								var ddata = {};
-								socket.emit(keyout, success(ddata, "delete Student success"))
-								log('(Server) '+ID[socket.id]+'<-'+keyout+": "+JSON.stringify(ddata));
-								log('(Block ) transaction info: '+JSON.stringify(tx))
+								let deleteStudent = await group.groupRefuseUser(idgroup, suser);
+								var tx = config.infoTransaction(deleteStudent);
+								if (tx.status == true)
+								{
+									var ddata = {};
+									socket.emit(keyout, success(ddata, "delete Student success"))
+									log('(Server) '+ID[socket.id]+'<-'+keyout+": "+JSON.stringify(ddata));
+									log('(Block ) transaction info: '+JSON.stringify(tx))
+								}
+								else
+								{
+									var msg = 'delete Student false'
+									socket.emit(keyout, error(msg))
+									log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+									log('(Block ) transaction info: '+JSON.stringify(tx))
+								}
 							}
-							else
+							catch (e)
 							{
-								var msg = 'delete Student false'
+								var msg = 'Error System!'
 								socket.emit(keyout, error(msg))
 								log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
-								log('(Block ) transaction info: '+JSON.stringify(tx))
+								log('(Block ) transaction error: '+e)
 							}
 						}
-						catch (e)
+						else
 						{
-							var msg = 'Error System!'
+							var msg = "student doesn't in group"
 							socket.emit(keyout, error(msg))
 							log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
-							log('(Block ) transaction error: '+e)
 						}
 					}
 					else
@@ -860,7 +906,7 @@ function getInfoOfStudent(socket, keyin, keyout)
 			}
 			else
 			{
-				var msg = "Group doesn't exist";
+				var msg = "Student doesn't exist";
 				socket.emit(keyout, error(msg))
 				log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
 			}
@@ -905,6 +951,211 @@ function getInfoAllGroupStudentJoin(socket, keyin, keyout)
 			log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
 		}
 	});
+}
+
+function studentJoinOrAcceptGroup(socket, keyin, keyout)
+{
+	socket.on(keyin, async function (data){
+		log('(Client) '+ID[socket.id]+'->'+keyin+': '+JSON.stringify(data));
+		if (LG[socket.id] == "student")
+		{
+			var idgroup = data.idgroup;
+			var suser = data.suser;
+
+			try
+			{
+				let existG = await group.existIdGroup(idgroup);
+				let existS = await student.userExist(suser);
+				
+				if (existS == true && existG == true)
+				{
+					let status = await group.getStatus(suser, idgroup)
+					if (status != 1 && status != 2)
+					{
+						try
+						{
+							let joinGroup = await group.userJoinGroup(suser, idgroup);
+							var tx = config.infoTransaction(joinGroup);
+							if (tx.status == true)
+							{
+								var ddata = {};
+								socket.emit(keyout, success(ddata, "join group success"))
+								log('(Server) '+ID[socket.id]+'<-'+keyout+": "+JSON.stringify(ddata));
+								log('(Block ) transaction info: '+JSON.stringify(tx))
+							}
+							else
+							{
+								var msg = 'join group failse'
+								socket.emit(keyout, error(msg))
+								log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+								log('(Block ) transaction info: '+JSON.stringify(tx))
+							}
+						}
+						catch (e)
+						{
+							var msg = 'Error System!'
+							socket.emit(keyout, error(msg))
+							log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+							log('(Block ) transaction error: '+e)
+						}
+					}
+					else
+					{
+						var msg = "User is already in group";
+						socket.emit(keyout, error(msg))
+						log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+					}
+				}
+				else
+				{
+					var msg = "student or Group doesn't exist"
+					socket.emit(keyout, error(msg))
+					log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+				}
+			}
+			catch (e)
+			{
+				var msg = e;
+				socket.emit(keyout, error(msg))
+				log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+			}
+		}
+		else if (LG[socket.id] == "teacher")
+		{
+			var msg = "You're a teacher, not a student";
+			socket.emit(keyout, error(msg))
+			log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+		}
+		else
+		{
+			var msg = "Must login before you AddOrInviteStudent";
+			socket.emit(keyout, error(msg))
+			log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+		}
+	});
+}
+
+function studentExitOrRefuseGroup(socket, keyin, keyout)
+{
+	socket.on(keyin, async function (data){
+		log('(Client) '+ID[socket.id]+'->'+keyin+': '+JSON.stringify(data));
+		if (LG[socket.id] == "student")
+		{
+			var idgroup = data.idgroup;
+			var suser = data.suser;
+
+			try
+			{
+				let existG = await group.existIdGroup(idgroup);
+				let existS = await student.userExist(suser);
+				
+				if (existS == true && existG == true)
+				{
+					let status = await group.getStatus(suser, idgroup)
+					if (status != 0 && status != 4)
+					{
+						try
+						{
+							let refuseGroup = await group.userRefuseGroup(suser, idgroup);
+							var tx = config.infoTransaction(refuseGroup);
+							if (tx.status == true)
+							{
+								var ddata = {};
+								socket.emit(keyout, success(ddata, "exit group success"))
+								log('(Server) '+ID[socket.id]+'<-'+keyout+": "+JSON.stringify(ddata));
+								log('(Block ) transaction info: '+JSON.stringify(tx))
+							}
+							else
+							{
+								var msg = 'exit group failse'
+								socket.emit(keyout, error(msg))
+								log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+								log('(Block ) transaction info: '+JSON.stringify(tx))
+							}
+						}
+						catch (e)
+						{
+							var msg = 'Error System!'
+							socket.emit(keyout, error(msg))
+							log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+							log('(Block ) transaction error: '+e)
+						}
+					}
+					else
+					{
+						var msg = "User doesn't in group";
+						socket.emit(keyout, error(msg))
+						log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+					}
+				}
+				else
+				{
+					var msg = "student or Group doesn't exist"
+					socket.emit(keyout, error(msg))
+					log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+				}
+			}
+			catch (e)
+			{
+				var msg = e;
+				socket.emit(keyout, error(msg))
+				log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+			}
+		}
+		else if (LG[socket.id] == "teacher")
+		{
+			var msg = "You're a teacher, not a student";
+			socket.emit(keyout, error(msg))
+			log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+		}
+		else
+		{
+			var msg = "Must login before you AddOrInviteStudent";
+			socket.emit(keyout, error(msg))
+			log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+		}
+	});
+}
+
+function getInfoOfTeacher(socket, keyin, keyout)
+{
+	socket.on(keyin,async function (data)
+	{
+		log('(Client) '+socket.id+'->'+keyin+': '+JSON.stringify(data))
+		if (LG[socket.id] != "none")
+		{
+			var tuser = data.tuser;
+			let existTeacher = await teacher.userExist(tuser)
+			if (existTeacher == true)
+			{
+				try
+				{
+					let infoteacher = await teacher.getInfoTeacher(tuser);
+					
+					socket.emit(keyout, success(infoteacher, "success"));
+					log('(Server) '+ID[socket.id]+'<-'+keyout+": "+JSON.stringify(infoteacher));
+				}
+				catch(e)
+				{
+					var msg = e;
+					socket.emit(keyout, error(msg))
+					log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+				}
+			}
+			else
+			{
+				var msg = "Teacher doesn't exist";
+				socket.emit(keyout, error(msg))
+				log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+			}
+		}
+		else
+		{
+			var msg = "Must login before you get info teacher";
+			socket.emit(keyout, error(msg))
+			log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+		}
+	})
 }
 
 function success(data, msg)

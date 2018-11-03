@@ -537,6 +537,36 @@ async function getInfoAllGroupStudentJoin(student)
 	return data;
 }
 
+async function getInfoAllGroup()
+{
+	var len = await getLengthId();
+	var arr = [];
+	for (var i=0; i<len; i++)
+	{
+		var info = {};
+		try
+		{
+			var gid = await getId(i);
+			var gname = await getNameGroup(gid);
+			var tuser = await getTeacherOfGroup(gid)
+			var gdate = await getDate(tuser, gid);
+			info.item = gid;
+			info.gname = gname;
+			info.tuser = tuser;
+			info.gdate = gdate;
+			arr.push(info)
+		}
+		catch(e)
+		{
+			throw new Error(e);
+		}
+	}
+	data = {};
+	data.len = len;
+	data.arr = arr;
+	return data;
+}
+
 // addGroup("testgroup").then(console.log).catch(console.log)
 // editGroup(1000, 'testgroup').then(console.log).catch(console.log)
 // deleteGroup(1003).then(console.log).catch(console.log)
@@ -620,5 +650,6 @@ module.exports =
 	getInfoAllGroupTeacherManage: getInfoAllGroupTeacherManage,
 	getAllStudentOfGroup: getAllStudentOfGroup,
 	deleteAllStudentOfGroup: deleteAllStudentOfGroup,
-	getInfoAllGroupStudentJoin: getInfoAllGroupStudentJoin
+	getInfoAllGroupStudentJoin: getInfoAllGroupStudentJoin,
+	getInfoAllGroup: getInfoAllGroup
 }
