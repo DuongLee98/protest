@@ -96,7 +96,7 @@ function getId(item)
 			if (data[0] == true)
 				return rs(data[2]);
 			else
-				return rj(data[1]);
+				return rj("ID: "+data[1]);
 		})
 	})
 }
@@ -109,7 +109,7 @@ function getGid(name)
 			if (data[0] == true)
 				return rs(data[2]);
 			else
-				return rj(data[1]);
+				return rj("GID: "+data[1]);
 		})
 	})
 }
@@ -132,7 +132,7 @@ function getNameGroup(id)
 			if (data[0] == true)
 				return rs(data[2]);
 			else
-				return rj(data[1]);
+				return rj("NameGroup: "+data[1]);
 		})
 	})
 }
@@ -257,7 +257,7 @@ function getGroupOfUser(user, index)
 			if (data[0] == true)
 				return rs(data[2]);
 			else
-				return rj(data[1]);
+				return rj("GroupOfUser: "+data[1]);
 		})
 	})
 }
@@ -359,7 +359,7 @@ function getDate(user, group)
 			if (data[0] == true)
 				return rs(data[2]);
 			else
-				return rj(data[1]);
+				return rj("GetDate: "+data[1]);
 		})
 	})
 }
@@ -372,7 +372,7 @@ function getGroupOfTeacher(user, index)
 			if (data[0] == true)
 				return rs(data[2]);
 			else
-				return rj(data[1]);
+				return rj("GroupOfTeacher: "+data[1]);
 		})
 	})
 }
@@ -405,7 +405,7 @@ function getTeacherOfGroup(group)
 			if (data[0] == true)
 				return rs(data[2]);
 			else
-				return rj(data[1]);
+				return rj("TeacherOfGroup: "+data[1]);
 		})
 	})
 }
@@ -548,12 +548,15 @@ async function getInfoAllGroup()
 		{
 			var gid = await getId(i);
 			var gname = await getNameGroup(gid);
+			console.log(gid, gname)
 			var tuser = await getTeacherOfGroup(gid)
 			var gdate = await getDate(tuser, gid);
+			
 			info.item = gid;
 			info.gname = gname;
 			info.tuser = tuser;
 			info.gdate = gdate;
+
 			arr.push(info)
 		}
 		catch(e)
@@ -569,13 +572,13 @@ async function getInfoAllGroup()
 
 // addGroup("testgroup").then(console.log).catch(console.log)
 // editGroup(1000, 'testgroup').then(console.log).catch(console.log)
-// deleteGroup(1003).then(console.log).catch(console.log)
+// deleteGroup(1011).then(console.log).catch(console.log)
 // getGid("testgroup").then(console.log);
 // getId(0).then(console.log)
 // getLengthId().then(console.log)
 // getNameGroup(1007).then(console.log)
 // existGroup('testgroup').then(console.log)
-// existIdGroup(1009).then(console.log);
+// existIdGroup(1011).then(console.log);
 //-----------------------------------------------------------------------
 // groupAddUser(1007, "duonglee").then(function(data){
 // 	console.log(config.infoTransaction(data));
@@ -604,13 +607,15 @@ async function getInfoAllGroup()
 // getDate("xuanhuy", 1003).then(console.log);
 // getGroupOfTeacher("xuanhuy", 0).then(console.log);
 // getLengthGroupOfTeacher("xuanhuy").then(console.log);
-// getStatusManage("duonglee", 1000).then(console.log);
-// getTeacherOfGroup(1000).then(console.log);
+// getStatusManage("HAT", 1011).then(console.log);
+// getTeacherOfGroup(1011).then(console.log);
 // groupExistMange(1000).then(console.log);
 //------------------------------------------------------------------------
 // getInfoAllGroupTeacherManage("xuanhuy").then(console.log);
 // getAllStudentOfGroup(1007).then(console.log);
 // getInfoAllGroupStudentJoin("duonglee").then(console.log);
+
+// getInfoAllGroup().then(console.log);
 
 module.exports =
 {

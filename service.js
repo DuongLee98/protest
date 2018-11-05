@@ -603,16 +603,24 @@ function searchInfo(socket, keyin, keyout)
 					var arr = dataGroup.arr;
 					for (var i = 0; i<len; i++)
 					{
-						arr[i].tname = await teacher.getNameUser(arr[i].tuser);
-						var dataToString = JSON.stringify(arr[i])
-						if (dataToString.indexOf(infosearch) != -1)
+						try
 						{
-							arr[i].type = "group"
-							arrout.push(arr[i]);
-							lenout++;
-							if (lenout >= 5)
-								break;
+							arr[i].tname = await teacher.getNameUser(arr[i].tuser);
+							var dataToString = JSON.stringify(arr[i])
+							if (dataToString.indexOf(infosearch) != -1)
+							{
+								arr[i].type = "group"
+								arrout.push(arr[i]);
+								lenout++;
+								if (lenout >= 5)
+									break;
+							}
 						}
+						catch (e)
+						{
+
+						}
+						
 					}
 				}
 				dataout = {};
