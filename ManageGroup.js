@@ -548,7 +548,6 @@ async function getInfoAllGroup()
 		{
 			var gid = await getId(i);
 			var gname = await getNameGroup(gid);
-			console.log(gid, gname)
 			var tuser = await getTeacherOfGroup(gid)
 			var gdate = await getDate(tuser, gid);
 			
