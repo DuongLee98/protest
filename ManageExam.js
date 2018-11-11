@@ -543,6 +543,7 @@ async function getExam(id)
 		edata.timeStart = await getTimeStartOfExam(id);
 		edata.timeEnd = await getTimeEndOfExam(id);
 		edata.qlen = await getLengthQuestionOfExam(id);
+		edata.publish = await getPublicOfExam(id);
 		let qarr = [];
 		for (var q=0; q<edata.qlen; q++)
 		{
@@ -581,6 +582,6 @@ async function getExam(id)
 module.exports = 
 {
 	getExistId: getExistId,
-	
+
 	getExam: getExam
 }
