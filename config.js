@@ -7,7 +7,7 @@ const addressTeacher = '0xb07f25a4baa33b72f26e252ba7f8fb70966b61b2';
 const addressGroup = '0xf4e99f902fec6202a8a26c5d450181df896d21a5';
 const addressJoin = '0xf50538542cf40022edb718f5603673a37d57186f';
 const addressManage = '0xa9d20c302cc353e568c4e105c641dad10c7b4535';
-const addressExam = '0xc8452afa5ddd226b017294127c6e697be3484796';
+const addressExam = '0x72a5dbf3f96103b1cc890008187731a8cb30cbc8';
 
 const addressFrom = '0x5609c3ece14be63dff0bc314610990608bc6a7de';
 const privateKey = '0xB75C5664625CADD6D18AAC559D54064310C4A82F8A90E7D61ECC61DAF5A9816F';
@@ -1492,6 +1492,24 @@ const abiExam = [
 		"type": "function"
 	},
 	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "id",
+				"type": "uint256"
+			},
+			{
+				"name": "tp",
+				"type": "string"
+			}
+		],
+		"name": "setTypeOfExam",
+		"outputs": [],
+		"payable": true,
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
 		"constant": true,
 		"inputs": [
 			{
@@ -1652,6 +1670,33 @@ const abiExam = [
 		"constant": true,
 		"inputs": [
 			{
+				"name": "i",
+				"type": "uint256"
+			}
+		],
+		"name": "getId",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bool"
+			},
+			{
+				"name": "",
+				"type": "string"
+			},
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
 				"name": "n",
 				"type": "string"
 			}
@@ -1684,6 +1729,20 @@ const abiExam = [
 			}
 		],
 		"name": "getLengthAnswerOfExam",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "getLengthExam",
 		"outputs": [
 			{
 				"name": "",
@@ -1901,6 +1960,25 @@ const abiExam = [
 		"payable": false,
 		"stateMutability": "view",
 		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "id",
+				"type": "uint256"
+			}
+		],
+		"name": "getTypeOfExam",
+		"outputs": [
+			{
+				"name": "",
+				"type": "string"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
 	}
 ];
 
@@ -1934,5 +2012,6 @@ module.exports =
 	createTransaction: transaction,
 	infoTransaction: infoTransaction,
 	getDate: getDate,
+	getTime: getTime,
 	log: log
 }

@@ -281,7 +281,7 @@ async function getInfoAllStudent()
 
 // getInfoAllStudent().then(console.log);
 
-// addUser("testuser", "testpass", "testname", "testphone").then(console.log);
+// addUser("thieuvinh", "protest", "Thieu Van Vinh", "0123487569").then(console.log);
 // deleteUser('testuser').then(console.log).catch(console.log);
 // editUser('testuser', '123', '456', '789').then(console.log).catch(console.log);
 // setPassUser('testuser', 'hello').then(console.log).catch(console.log);

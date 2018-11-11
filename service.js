@@ -4,6 +4,7 @@ var io = require('socket.io')(http);
 let student = require('./ManageStudent');
 let teacher = require('./ManageTeacher');
 let group = require('./ManageGroup');
+let exam = require('./ManageExam');
 var config = require('./config');
 
 let log = config.log
@@ -36,6 +37,7 @@ io.on('connection', function(clientSocket){
     getInfoOfGroup(clientSocket, 'getInfoOfGroup', 'rgetInfoOfGroup');
     groupAddOrInviteStudentByTeacher(clientSocket, 'groupAddOrInviteStudentByTeacher', 'rgroupAddOrInviteStudentByTeacher');
     groupDeleteOrRefuseStudentByTeacher(clientSocket, 'groupDeleteOrRefuseStudentByTeacher', 'rgroupDeleteOrRefuseStudentByTeacher');
+
     getInfoOfStudent(clientSocket, 'getInfoOfStudent', 'rgetInfoOfStudent');
     studentJoinOrAcceptGroup(clientSocket, 'studentJoinOrAcceptGroup', 'rstudentJoinOrAcceptGroup')
     studentExitOrRefuseGroup(clientSocket, 'studentExitOrRefuseGroup', 'rstudentExitOrRefuseGroup')
@@ -43,9 +45,11 @@ io.on('connection', function(clientSocket){
 
     //Student
     getInfoAllGroupStudentJoin(clientSocket, 'getInfoAllGroupStudentJoin', 'rgetInfoAllGroupStudentJoin');
-
+    //Exam
+    getExam(clientSocket, 'getExam', 'rgetExam');
+    
     clientSocket.on('disconnect', function(){
-        log('(Client) disconnected: '+ clientSocket.id);
+        log('(Client) disconnected: '+ ID[clientSocket.id]+"-"+LG[clientSocket.id]) ;
         delete ID[clientSocket.id];
         delete LG[clientSocket.id];
     });   
@@ -1160,6 +1164,47 @@ function getInfoOfTeacher(socket, keyin, keyout)
 		else
 		{
 			var msg = "Must login before you get info teacher";
+			socket.emit(keyout, error(msg))
+			log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+		}
+	})
+}
+
+function getExam(socket, keyin, keyout)
+{
+	socket.on(keyin,async function (data)
+	{
+		log('(Client) '+socket.id+'->'+keyin+': '+JSON.stringify(data))
+		if (LG[socket.id] != "none")
+		{
+			var eid = data.eid;
+			let existExam = await exam.getExistId(eid)
+			if (existExam == true)
+			{
+				try
+				{
+					let dataExam = await exam.getExam(eid);
+					
+					socket.emit(keyout, success(dataExam, "success"));
+					log('(Server) '+ID[socket.id]+'<-'+keyout+": "+JSON.stringify(dataExam));
+				}
+				catch(e)
+				{
+					var msg = e;
+					socket.emit(keyout, error(msg))
+					log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+				}
+			}
+			else
+			{
+				var msg = "Exam doesn't exist";
+				socket.emit(keyout, error(msg))
+				log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+			}
+		}
+		else
+		{
+			var msg = "Must login before you get exam";
 			socket.emit(keyout, error(msg))
 			log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
 		}
