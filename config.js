@@ -7,6 +7,7 @@ const addressTeacher = '0xb07f25a4baa33b72f26e252ba7f8fb70966b61b2';
 const addressGroup = '0xf4e99f902fec6202a8a26c5d450181df896d21a5';
 const addressJoin = '0xf50538542cf40022edb718f5603673a37d57186f';
 const addressManage = '0xa9d20c302cc353e568c4e105c641dad10c7b4535';
+const addressExam = '0xc8452afa5ddd226b017294127c6e697be3484796';
 
 const addressFrom = '0x5609c3ece14be63dff0bc314610990608bc6a7de';
 const privateKey = '0xB75C5664625CADD6D18AAC559D54064310C4A82F8A90E7D61ECC61DAF5A9816F';
@@ -39,33 +40,42 @@ function infoTransaction(receipt)
 
 function log(data)
 {
-	var date = new Date();
-	var hour = date.getHours();
-    hour = (hour < 10 ? "0" : "") + hour;
-    var min  = date.getMinutes();
-    min = (min < 10 ? "0" : "") + min;
-    var sec  = date.getSeconds();
-    sec = (sec < 10 ? "0" : "") + sec;
-    var year = date.getFullYear();
-    var month = date.getMonth() + 1;
-    month = (month < 10 ? "0" : "") + month;
-    var day  = date.getDate();
-    day = (day < 10 ? "0" : "") + day;
-
-    time = "["+year + ":" + month + ":" + day + ":" + hour + ":" + min + ":" + sec+"]";
-    console.log(time+": "+data)
+	var d = new Date();
+	let date = d.toLocaleDateString().split('/');
+	const year = date[2];
+	const mounth = date[1].length > 1 ? date[1] : '0'+date[1];
+	const day = date[0].length > 1 ? date[0] : '0'+date[0];
+	let time = d.toLocaleTimeString().split(' ');
+	let stamp = time[0].split(':');
+	const hour = stamp[0].length > 1 ? stamp[0] : '0'+stamp[0];
+	const minute = stamp[1].length > 1 ? stamp[1] : '0'+stamp[1];
+	const second = stamp[2].length > 1 ? stamp[2] : '0'+stamp[2];
+    console.log('['+year+':'+mounth+':'+day+':'+time[1]+':'+hour+':'+minute+':'+second+']'+': '+data);
 }
 
 function getDate()
 {
-	var date = new Date();
-	var year = date.getFullYear();
-    var month = date.getMonth() + 1;
-    month = (month < 10 ? "0" : "") + month;
-    var day  = date.getDate();
-    day = (day < 10 ? "0" : "") + day;
-    return year + "/" + month + "/" + day;
+	var d = new Date();
+	let date = d.toLocaleDateString().split('/');
+	const year = date[2];
+	const mounth = date[1].length > 1 ? date[1] : '0'+date[1];
+	const day = date[0].length > 1 ? date[0] : '0'+date[0];
+	time1 = year+'/'+mounth+'/'+day;
+    return time1;
 }
+
+function getTime()
+{
+	var d = new Date();
+	let time = d.toLocaleTimeString().split(' ');
+	let stamp = time[0].split(':');
+	const hour = stamp[0].length > 1 ? stamp[0] : '0'+stamp[0];
+	const minute = stamp[1].length > 1 ? stamp[1] : '0'+stamp[1];
+	const second = stamp[2].length > 1 ? stamp[2] : '0'+stamp[2];
+    return time[1]+':'+hour+':'+minute+':'+second;
+}
+
+
 
 const abiStudent = [
 	{
@@ -1252,7 +1262,647 @@ const abiManage = [
 		"type": "function"
 	}
 ];
-
+const abiExam = [
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "n",
+				"type": "string"
+			}
+		],
+		"name": "addExam",
+		"outputs": [],
+		"payable": true,
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "id",
+				"type": "uint256"
+			},
+			{
+				"name": "i",
+				"type": "uint256"
+			},
+			{
+				"name": "aw",
+				"type": "uint256"
+			}
+		],
+		"name": "addOrSetAnswerOfExam",
+		"outputs": [],
+		"payable": true,
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "id",
+				"type": "uint256"
+			},
+			{
+				"name": "i",
+				"type": "uint256"
+			},
+			{
+				"name": "nq",
+				"type": "string"
+			}
+		],
+		"name": "addOrSetQuestionOfExam",
+		"outputs": [],
+		"payable": true,
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "id",
+				"type": "uint256"
+			},
+			{
+				"name": "q",
+				"type": "uint256"
+			},
+			{
+				"name": "s",
+				"type": "uint256"
+			},
+			{
+				"name": "ns",
+				"type": "string"
+			}
+		],
+		"name": "addOrSetSelectionOfQuestionInExam",
+		"outputs": [],
+		"payable": true,
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "id",
+				"type": "uint256"
+			}
+		],
+		"name": "deleteExam",
+		"outputs": [],
+		"payable": true,
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "id",
+				"type": "uint256"
+			},
+			{
+				"name": "nn",
+				"type": "string"
+			}
+		],
+		"name": "editName",
+		"outputs": [],
+		"payable": true,
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "id",
+				"type": "uint256"
+			},
+			{
+				"name": "len",
+				"type": "uint256"
+			}
+		],
+		"name": "setLengthAnswerOfExam",
+		"outputs": [],
+		"payable": true,
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "id",
+				"type": "uint256"
+			},
+			{
+				"name": "len",
+				"type": "uint256"
+			}
+		],
+		"name": "setLengthQuestionOfExam",
+		"outputs": [],
+		"payable": true,
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "id",
+				"type": "uint256"
+			},
+			{
+				"name": "q",
+				"type": "uint256"
+			},
+			{
+				"name": "l",
+				"type": "uint256"
+			}
+		],
+		"name": "setLengthSelectionOfQuestionInExam",
+		"outputs": [],
+		"payable": true,
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "id",
+				"type": "uint256"
+			},
+			{
+				"name": "p",
+				"type": "bool"
+			}
+		],
+		"name": "setPublicOfExam",
+		"outputs": [],
+		"payable": true,
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "id",
+				"type": "uint256"
+			},
+			{
+				"name": "t",
+				"type": "string"
+			}
+		],
+		"name": "setTimeEndOfExam",
+		"outputs": [],
+		"payable": true,
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "id",
+				"type": "uint256"
+			},
+			{
+				"name": "t",
+				"type": "string"
+			}
+		],
+		"name": "setTimeStartOfExam",
+		"outputs": [],
+		"payable": true,
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "id",
+				"type": "uint256"
+			},
+			{
+				"name": "s",
+				"type": "uint256"
+			}
+		],
+		"name": "existQuestionOfExam",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "id",
+				"type": "uint256"
+			},
+			{
+				"name": "q",
+				"type": "uint256"
+			},
+			{
+				"name": "s",
+				"type": "uint256"
+			}
+		],
+		"name": "existSelectionOfQuestionInExam",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "id",
+				"type": "uint256"
+			}
+		],
+		"name": "existTimeEndOfExam",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "id",
+				"type": "uint256"
+			}
+		],
+		"name": "existTimeStartOfExam",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "id",
+				"type": "uint256"
+			},
+			{
+				"name": "i",
+				"type": "uint256"
+			}
+		],
+		"name": "getAnswerOfExam",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bool"
+			},
+			{
+				"name": "",
+				"type": "string"
+			},
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "id",
+				"type": "uint256"
+			}
+		],
+		"name": "getExistId",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "n",
+				"type": "string"
+			}
+		],
+		"name": "getExistName",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "n",
+				"type": "string"
+			}
+		],
+		"name": "getIdOfExam",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bool"
+			},
+			{
+				"name": "",
+				"type": "string"
+			},
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "id",
+				"type": "uint256"
+			}
+		],
+		"name": "getLengthAnswerOfExam",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "id",
+				"type": "uint256"
+			}
+		],
+		"name": "getLengthQuestionOfExam",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "id",
+				"type": "uint256"
+			},
+			{
+				"name": "q",
+				"type": "uint256"
+			}
+		],
+		"name": "getLengthSelectionOfQuestionInExam",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "id",
+				"type": "uint256"
+			}
+		],
+		"name": "getNameOfExam",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bool"
+			},
+			{
+				"name": "",
+				"type": "string"
+			},
+			{
+				"name": "",
+				"type": "string"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "id",
+				"type": "uint256"
+			}
+		],
+		"name": "getPublicOfExam",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "id",
+				"type": "uint256"
+			},
+			{
+				"name": "i",
+				"type": "uint256"
+			}
+		],
+		"name": "getQuestionOfExam",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bool"
+			},
+			{
+				"name": "",
+				"type": "string"
+			},
+			{
+				"name": "",
+				"type": "string"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "id",
+				"type": "uint256"
+			},
+			{
+				"name": "q",
+				"type": "uint256"
+			},
+			{
+				"name": "s",
+				"type": "uint256"
+			}
+		],
+		"name": "getSelectionOfQestionInExam",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bool"
+			},
+			{
+				"name": "",
+				"type": "string"
+			},
+			{
+				"name": "",
+				"type": "string"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "id",
+				"type": "uint256"
+			}
+		],
+		"name": "getTimeEndOfExam",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bool"
+			},
+			{
+				"name": "",
+				"type": "string"
+			},
+			{
+				"name": "",
+				"type": "string"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "id",
+				"type": "uint256"
+			}
+		],
+		"name": "getTimeStartOfExam",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bool"
+			},
+			{
+				"name": "",
+				"type": "string"
+			},
+			{
+				"name": "",
+				"type": "string"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	}
+];
 
 
 module.exports = 
@@ -1266,7 +1916,8 @@ module.exports =
 	addressGroup: addressGroup,
 	addressJoin: addressJoin,
 	addressManage: addressManage,
-
+	addressExam: addressExam,
+	
 	addressFrom: addressFrom,
 	privateKey: privateKey,
 
@@ -1275,6 +1926,7 @@ module.exports =
 	abiGroup: abiGroup,
 	abiJoin: abiJoin,
 	abiManage: abiManage,
+	abiExam: abiExam,
 
 	gasPrice: gasPrice,
 	gasLimit: gasLimit,
