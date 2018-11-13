@@ -51,7 +51,7 @@ function log(data)
 	const hour = stamp[0].length > 1 ? stamp[0] : '0'+stamp[0];
 	const minute = stamp[1].length > 1 ? stamp[1] : '0'+stamp[1];
 	const second = stamp[2].length > 1 ? stamp[2] : '0'+stamp[2];
-    console.log('['+year+':'+mounth+':'+day+':'+time[1]+':'+hour+':'+minute+':'+second+']'+': '+data);
+    console.log('['+year+'/'+mounth+'/'+day+'-'+time[1]+':'+hour+':'+minute+':'+second+']'+': '+data);
 }
 
 function getDate()

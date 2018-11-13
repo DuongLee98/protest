@@ -783,6 +783,8 @@ module.exports =
 {
 	getExistId: getExistId,
 
+	getAcceptGroupForExam: getAcceptGroupForExam,
+
 	getExam: getExam,
 	getInfoAllExamTeacherMake: getInfoAllExamTeacherMake
 }

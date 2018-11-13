@@ -1186,6 +1186,24 @@ function getExam(socket, keyin, keyout)
 				{
 					let dataExam = await exam.getExam(eid);
 					dataExam.tname = await teacher.getNameUser(dataExam.tuser);
+					if(dataExam.publish == false)
+					{
+						let dataGroup = await group.getInfoAllGroupTeacherManage(dataExam.tuser);
+						let lenGroupAcc = 0;
+						let arrGourpAcc = [];
+						for (var i = 0; i<dataGroup.len; i++)
+						{
+							var st = await exam.getAcceptGroupForExam(dataExam.tuser, eid, parseInt(dataGroup.arr[i].gid));
+							if (st==true)
+							{
+								lenGroupAcc++;
+								arrGourpAcc.push(parseInt(dataGroup.arr[i].gid));
+							}
+						}
+						dataExam.lenGroupAcc = lenGroupAcc;
+						dataExam.arrGourpAcc = arrGourpAcc;
+					}
+					
 					socket.emit(keyout, success(dataExam, "success"));
 					log('(Server) '+ID[socket.id]+'<-'+keyout+": "+JSON.stringify(dataExam));
 				}
