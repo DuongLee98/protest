@@ -8,6 +8,7 @@ const addressGroup = '0xf4e99f902fec6202a8a26c5d450181df896d21a5';
 const addressJoin = '0xf50538542cf40022edb718f5603673a37d57186f';
 const addressManage = '0xa9d20c302cc353e568c4e105c641dad10c7b4535';
 const addressExam = '0x72a5dbf3f96103b1cc890008187731a8cb30cbc8';
+const addressMake = '0xa00a75aadecc02842d09df7b2c9847263efb593e';
 
 const addressFrom = '0x5609c3ece14be63dff0bc314610990608bc6a7de';
 const privateKey = '0xB75C5664625CADD6D18AAC559D54064310C4A82F8A90E7D61ECC61DAF5A9816F';
@@ -43,8 +44,8 @@ function log(data)
 	var d = new Date();
 	let date = d.toLocaleDateString().split('/');
 	const year = date[2];
-	const mounth = date[1].length > 1 ? date[1] : '0'+date[1];
-	const day = date[0].length > 1 ? date[0] : '0'+date[0];
+	const mounth = date[0].length > 1 ? date[0] : '0'+date[0];
+	const day = date[1].length > 1 ? date[1] : '0'+date[1];
 	let time = d.toLocaleTimeString().split(' ');
 	let stamp = time[0].split(':');
 	const hour = stamp[0].length > 1 ? stamp[0] : '0'+stamp[0];
@@ -58,8 +59,8 @@ function getDate()
 	var d = new Date();
 	let date = d.toLocaleDateString().split('/');
 	const year = date[2];
-	const mounth = date[1].length > 1 ? date[1] : '0'+date[1];
-	const day = date[0].length > 1 ? date[0] : '0'+date[0];
+	const mounth = date[0].length > 1 ? date[0] : '0'+date[0];
+	const day = date[1].length > 1 ? date[1] : '0'+date[1];
 	time1 = year+'/'+mounth+'/'+day;
     return time1;
 }
@@ -1981,6 +1982,259 @@ const abiExam = [
 		"type": "function"
 	}
 ];
+const abiMake = [
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "t",
+				"type": "string"
+			},
+			{
+				"name": "e",
+				"type": "uint256"
+			},
+			{
+				"name": "d",
+				"type": "string"
+			}
+		],
+		"name": "addMake",
+		"outputs": [],
+		"payable": true,
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "t",
+				"type": "string"
+			},
+			{
+				"name": "e",
+				"type": "uint256"
+			}
+		],
+		"name": "deleteMake",
+		"outputs": [],
+		"payable": true,
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "t",
+				"type": "string"
+			},
+			{
+				"name": "e",
+				"type": "uint256"
+			},
+			{
+				"name": "g",
+				"type": "uint256"
+			},
+			{
+				"name": "acc",
+				"type": "bool"
+			}
+		],
+		"name": "setAcceptGroupForExam",
+		"outputs": [],
+		"payable": true,
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "u",
+				"type": "uint256"
+			}
+		],
+		"name": "examExist",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "t",
+				"type": "string"
+			},
+			{
+				"name": "e",
+				"type": "uint256"
+			},
+			{
+				"name": "g",
+				"type": "uint256"
+			}
+		],
+		"name": "getAcceptGroupForExam",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bool"
+			},
+			{
+				"name": "",
+				"type": "string"
+			},
+			{
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "u",
+				"type": "string"
+			},
+			{
+				"name": "e",
+				"type": "uint256"
+			}
+		],
+		"name": "getDate",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bool"
+			},
+			{
+				"name": "",
+				"type": "string"
+			},
+			{
+				"name": "",
+				"type": "string"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "u",
+				"type": "string"
+			},
+			{
+				"name": "i",
+				"type": "uint256"
+			}
+		],
+		"name": "getExam",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bool"
+			},
+			{
+				"name": "",
+				"type": "string"
+			},
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "u",
+				"type": "string"
+			}
+		],
+		"name": "getLengthListExam",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "u",
+				"type": "string"
+			},
+			{
+				"name": "e",
+				"type": "uint256"
+			}
+		],
+		"name": "getStatus",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "e",
+				"type": "uint256"
+			}
+		],
+		"name": "getTeacher",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bool"
+			},
+			{
+				"name": "",
+				"type": "string"
+			},
+			{
+				"name": "",
+				"type": "string"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	}
+];
 
 
 module.exports = 
@@ -1995,6 +2249,7 @@ module.exports =
 	addressJoin: addressJoin,
 	addressManage: addressManage,
 	addressExam: addressExam,
+	addressMake: addressMake,
 	
 	addressFrom: addressFrom,
 	privateKey: privateKey,
@@ -2005,6 +2260,7 @@ module.exports =
 	abiJoin: abiJoin,
 	abiManage: abiManage,
 	abiExam: abiExam,
+	abiMake: abiMake,
 
 	gasPrice: gasPrice,
 	gasLimit: gasLimit,

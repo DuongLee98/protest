@@ -47,6 +47,7 @@ io.on('connection', function(clientSocket){
     getInfoAllGroupStudentJoin(clientSocket, 'getInfoAllGroupStudentJoin', 'rgetInfoAllGroupStudentJoin');
     //Exam
     getExam(clientSocket, 'getExam', 'rgetExam');
+    getInfoAllExamTeacherMake(clientSocket, 'getInfoAllExamTeacherMake', 'rgetInfoAllExamTeacherMake');
     
     clientSocket.on('disconnect', function(){
         log('(Client) disconnected: '+ ID[clientSocket.id]+"-"+LG[clientSocket.id]) ;
@@ -1184,7 +1185,7 @@ function getExam(socket, keyin, keyout)
 				try
 				{
 					let dataExam = await exam.getExam(eid);
-					
+					dataExam.tname = await teacher.getNameUser(dataExam.tuser);
 					socket.emit(keyout, success(dataExam, "success"));
 					log('(Server) '+ID[socket.id]+'<-'+keyout+": "+JSON.stringify(dataExam));
 				}
@@ -1209,6 +1210,35 @@ function getExam(socket, keyin, keyout)
 			log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
 		}
 	})
+}
+
+function getInfoAllExamTeacherMake(socket, keyin, keyout)
+{
+	socket.on(keyin, async function (data){
+		log('(Client) '+ID[socket.id]+'->'+keyin+': '+JSON.stringify(data));
+		if (LG[socket.id] != "none")
+		{
+			try
+			{
+				var tuser = data.tuser;
+				let ddata = await exam.getInfoAllExamTeacherMake(tuser)
+				socket.emit(keyout, success(ddata, "get success"))
+				log('(Server) '+ID[socket.id]+'<-'+keyout+": "+JSON.stringify(ddata));
+			}
+			catch (e)
+			{
+				var msg = e;
+				socket.emit(keyout, error(msg))
+				log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+			}
+		}
+		else
+		{
+			var msg = "Must login before you get info";
+			socket.emit(keyout, error(msg))
+			log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+		}
+	});
 }
 
 function success(data, msg)

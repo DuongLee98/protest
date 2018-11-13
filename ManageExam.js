@@ -8,6 +8,10 @@ var exam = new web3.eth.Contract(config.abiExam, config.addressExam, {
     from: config.addressFrom,
     gasPrice: config.gasPrice
 });
+var make = new web3.eth.Contract(config.abiMake, config.addressMake, {
+    from: config.addressFrom,
+    gasPrice: config.gasPrice
+});
 
 function addExam(n)
 {
@@ -531,19 +535,178 @@ function getTypeOfExam(id)
 		})
 	})
 }
+//--------------------------------------------------------------------------
+function addMake(t, e)
+{
+	log('(Server) send... addMake');
+	return new Promise (function(resolve, reject){
+		var builder = make.methods.addMake(t, e, config.getDate()+"-"+config.getTime()).encodeABI();
+		var transaction = config.createTransaction(config.addressFrom, config.addressMake, builder);
+		web3.eth.accounts.signTransaction(transaction, config.privateKey, function (error, signedTx) {
+		    if (error)
+		    {
+		        return reject("addMake: "+error);
+			}
+			else
+			{
+				web3.eth.sendSignedTransaction(signedTx.rawTransaction).on('receipt', function (receipt) {
+		            return resolve(receipt);
+		 		}).on('error', function(err){
+		 			return reject("addMake: "+err);
+		 		})
+			}
+		});
+	});
+}
+function deleteMake(t, e)
+{
+	log('(Server) send... deleteMake');
+	return new Promise (function(resolve, reject){
+		var builder = make.methods.deleteMake(t, e).encodeABI();
+		var transaction = config.createTransaction(config.addressFrom, config.addressMake, builder);
+		web3.eth.accounts.signTransaction(transaction, config.privateKey, function (error, signedTx) {
+		    if (error)
+		    {
+		        return reject("deleteMake: "+error);
+			}
+			else
+			{
+				web3.eth.sendSignedTransaction(signedTx.rawTransaction).on('receipt', function (receipt) {
+		            return resolve(receipt);
+		 		}).on('error', function(err){
+		 			return reject("deleteMake: "+err);
+		 		})
+			}
+		});
+	});
+}
+function setAcceptGroupForExam(t, e, g, acc)
+{
+	log('(Server) send... setAcceptGroupForExam');
+	return new Promise (function(resolve, reject){
+		var builder = make.methods.setAcceptGroupForExam(t, e, g, acc).encodeABI();
+		var transaction = config.createTransaction(config.addressFrom, config.addressMake, builder);
+		web3.eth.accounts.signTransaction(transaction, config.privateKey, function (error, signedTx) {
+		    if (error)
+		    {
+		        return reject("setAcceptGroupForExam: "+error);
+			}
+			else
+			{
+				web3.eth.sendSignedTransaction(signedTx.rawTransaction).on('receipt', function (receipt) {
+		            return resolve(receipt);
+		 		}).on('error', function(err){
+		 			return reject("setAcceptGroupForExam: "+err);
+		 		})
+			}
+		});
+	});
+}
+function examExist(u)
+{
+	return new Promise(function(rs, rj)
+	{
+		make.methods.examExist(u).call().then(function(rt){
+			return rs(rt);
+		})
+	})
+}
+function getAcceptGroupForExam(t, e, g)
+{
+	return new Promise(function(rs, rj)
+	{
+		make.methods.getAcceptGroupForExam(t, e, g).call().then(function(data){
+			if (data[0] == true)
+				return rs(data[2]);
+			else
+				return rj("getAcceptGroupForExam: "+data[1]);
+		})
+	})
+}
+function getDate(u, e)
+{
+	return new Promise(function(rs, rj)
+	{
+		make.methods.getDate(u, e).call().then(function(data){
+			if (data[0] == true)
+				return rs(data[2]);
+			else
+				return rj("getDate: "+data[1]);
+		})
+	})
+}
+function getExamInMake(u, i)
+{
+	return new Promise(function(rs, rj)
+	{
+		make.methods.getExam(u, i).call().then(function(data){
+			if (data[0] == true)
+				return rs(data[2]);
+			else
+				return rj("getDate: "+data[1]);
+		})
+	})
+}
+function getLengthListExam(u)
+{
+	return new Promise(function(rs, rj)
+	{
+		make.methods.getLengthListExam(u).call().then(function(rt){
+			return rs(rt);
+		})
+	})
+}
+function getStatus(u, e)
+{
+	return new Promise(function(rs, rj)
+	{
+		make.methods.getStatus(u, e).call().then(function(rt){
+			return rs(rt);
+		})
+	})
+}
+function getTeacher(e)
+{
+	return new Promise(function(rs, rj)
+	{
+		make.methods.getTeacher(e).call().then(function(data){
+			if (data[0] == true)
+				return rs(data[2]);
+			else
+				return rj("getDate: "+data[1]);
+		})
+	})
+}
+//--------------------------------------------------------------------------
 
-async function getExam(id)
+async function getDetailExam(id)
 {
 	var edata = {};
 	try
 	{
+		edata.tuser = await getTeacher(id);
 		edata.name = await getNameOfExam(id);
+		edata.created = await getDate(edata.tuser, id);
 		edata.eid = id;
 		edata.type = await getTypeOfExam(id);
 		edata.timeStart = await getTimeStartOfExam(id);
 		edata.timeEnd = await getTimeEndOfExam(id);
 		edata.qlen = await getLengthQuestionOfExam(id);
 		edata.publish = await getPublicOfExam(id);
+		return edata;
+	}
+	catch(e)
+	{
+		throw new Error(e);
+	}
+}
+
+async function getExam(id)
+{
+	var edata = {};
+	try
+	{
+		edata = await getDetailExam(id);
 		let qarr = [];
 		for (var q=0; q<edata.qlen; q++)
 		{
@@ -568,20 +731,58 @@ async function getExam(id)
 	}
 }
 
-// addExam("Exam Test1").then(console.log);
-// setTypeOfExam(10000, "Physics").then(console.log);
-// setTimeStartOfExam(10000, config.getDate()+"-"+config.getTime()).then(console.log);
-// setTimeEndOfExam(10000, config.getDate()+"-"+config.getTime()).then(console.log);
+async function getInfoAllExamTeacherMake(tuser)
+{
+	let data = {};
+	try
+	{
+		data.len = await getLengthListExam(tuser);
+		var arr = [];
+		for (var i=0; i<data.len; i++)
+		{
+			var eid = await getExamInMake(tuser, i);
+			var otmp = await getDetailExam(eid);
+			arr.push(otmp);
+		}
+		data.arr = arr;
+		return data;
+	}
+	catch(e)
+	{
+		throw new Error(e);
+	}
+}
+
+// addExam("Exam Test2").then(console.log);
+// setTypeOfExam(10001, "Chemistry").then(console.log);
+// setTimeStartOfExam(10001, config.getDate()+"-"+config.getTime()).then(console.log);
+// setTimeEndOfExam(10001, "2018/11/28-PM:08:08:08").then(console.log);
 // addOrSetQuestionOfExam(10000, 1, "Q2?").then(console.log);
 // addOrSetSelectionOfQuestionInExam(10000, 0, 1, "S2-1.").then(console.log);
 // addOrSetAnswerOfExam(10000, 1, 3).then(console.log);
-// getExam(10000).then(function (data){
+// getLengthExam().then(console.log);
+// getIdOfExam("Exam Test2").then(console.log);
+//-------------------------------------------------------------------------------------
+// addMake("xuanhuy", 10001).then(console.log);
+// examExist(10000).then(console.log);
+// getAcceptGroupForExam("xuanhuy", 10000, 1010).then(console.log);
+// getDate("xuanhuy", 10000).then(console.log);
+// getExamInMake("xuanhuy", 0).then(console.log);
+// getLengthListExam("xuanhuy").then(console.log);
+// getTeacher(10000).then(console.log);
+// setAcceptGroupForExam("xuanhuy", 10000, 1010, true).then(console.log);
+// deleteMake("xuanhuy", 10000).then(console.log);
+//-----------------------------------------------------------------------------
+// getExam(10001).then(function (data){
 // 	console.log(data);
 // });
+// getDetailExam(10000).then(console.log);
+// getInfoAllExamTeacherMake("xuanhuy").then(console.log);
 
 module.exports = 
 {
 	getExistId: getExistId,
 
-	getExam: getExam
+	getExam: getExam,
+	getInfoAllExamTeacherMake: getInfoAllExamTeacherMake
 }
