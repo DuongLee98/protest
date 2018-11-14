@@ -358,6 +358,10 @@ function getInfoAllGroupTeacherManage(socket, keyin, keyout)
 			{
 				var userteacher = data.userteacher;
 				let ddata = await group.getInfoAllGroupTeacherManage(userteacher)
+				if (userteacher == ID[socket.id])
+					ddata.control = true;
+				else
+					ddata.control = false;
 				socket.emit(keyout, success(ddata, "get success"))
 				log('(Server) '+ID[socket.id]+'<-'+keyout+": "+JSON.stringify(ddata));
 			}
@@ -685,6 +689,10 @@ function getInfoOfGroup(socket, keyin, keyout)
 					ddata.tname = tname;
 					ddata.len = len;
 					ddata.arr = arr;
+					if (tuser == ID[socket.id])
+						ddata.control = true;
+					else
+						ddata.control = false;
 					socket.emit(keyout, success(ddata, "success"));
 					log('(Server) '+ID[socket.id]+'<-'+keyout+": "+JSON.stringify(ddata));
 				}
@@ -948,6 +956,10 @@ function getInfoAllGroupStudentJoin(socket, keyin, keyout)
 				{
 					ddata.arr[i].tname = await teacher.getNameUser(ddata.arr[i].tuser);
 				}
+				if (suser == ID[socket.id])
+						ddata.control = true;
+					else
+						ddata.control = false;
 				socket.emit(keyout, success(ddata, "get success"))
 				log('(Server) '+ID[socket.id]+'<-'+keyout+": "+JSON.stringify(ddata));
 			}

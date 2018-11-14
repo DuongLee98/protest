@@ -9,6 +9,7 @@ const addressJoin = '0xf50538542cf40022edb718f5603673a37d57186f';
 const addressManage = '0xa9d20c302cc353e568c4e105c641dad10c7b4535';
 const addressExam = '0x72a5dbf3f96103b1cc890008187731a8cb30cbc8';
 const addressMake = '0xa00a75aadecc02842d09df7b2c9847263efb593e';
+const addressDo = '0xa167f39ee5a4ffe808c9319cd1623b879dc2e93e';
 
 const addressFrom = '0x5609c3ece14be63dff0bc314610990608bc6a7de';
 const privateKey = '0xB75C5664625CADD6D18AAC559D54064310C4A82F8A90E7D61ECC61DAF5A9816F';
@@ -2235,7 +2236,184 @@ const abiMake = [
 		"type": "function"
 	}
 ];
-
+const abiDo = [
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "u",
+				"type": "string"
+			},
+			{
+				"name": "e",
+				"type": "uint256"
+			},
+			{
+				"name": "m",
+				"type": "uint256"
+			}
+		],
+		"name": "addMask",
+		"outputs": [],
+		"payable": true,
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "u",
+				"type": "string"
+			},
+			{
+				"name": "i",
+				"type": "uint256"
+			}
+		],
+		"name": "getExamInDo",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bool"
+			},
+			{
+				"name": "",
+				"type": "string"
+			},
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "u",
+				"type": "string"
+			}
+		],
+		"name": "getLengthExamInDo",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "g",
+				"type": "uint256"
+			}
+		],
+		"name": "getLengthUserInDo",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "u",
+				"type": "string"
+			},
+			{
+				"name": "e",
+				"type": "uint256"
+			}
+		],
+		"name": "getMark",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bool"
+			},
+			{
+				"name": "",
+				"type": "string"
+			},
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "u",
+				"type": "string"
+			},
+			{
+				"name": "g",
+				"type": "uint256"
+			}
+		],
+		"name": "getStatusInDo",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "g",
+				"type": "uint256"
+			},
+			{
+				"name": "i",
+				"type": "uint256"
+			}
+		],
+		"name": "getUserInDo",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bool"
+			},
+			{
+				"name": "",
+				"type": "string"
+			},
+			{
+				"name": "",
+				"type": "string"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	}
+];
 
 module.exports = 
 {
@@ -2250,6 +2428,7 @@ module.exports =
 	addressManage: addressManage,
 	addressExam: addressExam,
 	addressMake: addressMake,
+	addressDo: addressDo,
 	
 	addressFrom: addressFrom,
 	privateKey: privateKey,
@@ -2261,6 +2440,7 @@ module.exports =
 	abiManage: abiManage,
 	abiExam: abiExam,
 	abiMake: abiMake,
+	abiDo: abiDo,
 
 	gasPrice: gasPrice,
 	gasLimit: gasLimit,
