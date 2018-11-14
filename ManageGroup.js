@@ -577,7 +577,7 @@ async function getInfoAllGroup()
 // getLengthId().then(console.log)
 // getNameGroup(1007).then(console.log)
 // existGroup('testgroup').then(console.log)
-// existIdGroup(1011).then(console.log);
+// existIdGroup(1010).then(console.log);
 //-----------------------------------------------------------------------
 // groupAddUser(1007, "duonglee").then(function(data){
 // 	console.log(config.infoTransaction(data));

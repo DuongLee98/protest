@@ -48,6 +48,7 @@ io.on('connection', function(clientSocket){
     //Exam
     getExam(clientSocket, 'getExam', 'rgetExam');
     getInfoAllExamTeacherMake(clientSocket, 'getInfoAllExamTeacherMake', 'rgetInfoAllExamTeacherMake');
+    getInfoAllExamAcceptForGroup(clientSocket, 'getInfoAllExamAcceptForGroup', 'rgetInfoAllExamAcceptForGroup')
     
     clientSocket.on('disconnect', function(){
         log('(Client) disconnected: '+ ID[clientSocket.id]+"-"+LG[clientSocket.id]) ;
@@ -1239,9 +1240,81 @@ function getInfoAllExamTeacherMake(socket, keyin, keyout)
 			try
 			{
 				var tuser = data.tuser;
-				let ddata = await exam.getInfoAllExamTeacherMake(tuser)
-				socket.emit(keyout, success(ddata, "get success"))
-				log('(Server) '+ID[socket.id]+'<-'+keyout+": "+JSON.stringify(ddata));
+				var exist = await teacher.userExist(tuser);
+				if (exist == true)
+				{
+					let ddata = await exam.getInfoAllExamTeacherMake(tuser)
+					socket.emit(keyout, success(ddata, "get success"))
+					log('(Server) '+ID[socket.id]+'<-'+keyout+": "+JSON.stringify(ddata));
+				}
+				else
+				{
+					var msg = "tuser doesn't exist";
+					socket.emit(keyout, error(msg))
+					log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+				}	
+			}
+			catch (e)
+			{
+				var msg = e;
+				socket.emit(keyout, error(msg))
+				log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+			}
+		}
+		else
+		{
+			var msg = "Must login before you get info";
+			socket.emit(keyout, error(msg))
+			log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+		}
+	});
+}
+
+function getInfoAllExamAcceptForGroup(socket, keyin, keyout)
+{
+	socket.on(keyin, async function (data){
+		log('(Client) '+ID[socket.id]+'->'+keyin+': '+JSON.stringify(data));
+		if (LG[socket.id] != "none")
+		{
+			try
+			{
+				var gid = data.gid;
+				var exist = await group.existIdGroup(gid);
+				if (exist == true)
+				{
+					let tuser = await group.getTeacherOfGroup(gid);
+					let tname = await teacher.getNameUser(tuser);
+					let edata = await exam.getInfoAllExamTeacherMake(tuser);
+					let len = 0;
+					let arr = [];
+					for (var i=0; i<edata.len; i++)
+					{
+						var edt = edata.arr[i];
+						if (edt.publish == false)
+						{
+							var pl = await exam.getAcceptGroupForExam(tuser, edt.eid, gid);
+							if (pl == true)
+							{
+								len++;
+								arr.push(edt);
+							}
+						}
+					}
+					ddata = {};
+					ddata.gid = gid;
+					ddata.tuser = tuser;
+					ddata.tname = tname;
+					ddata.len = len;
+					ddata.arr = arr;
+					socket.emit(keyout, success(ddata, "get success"))
+					log('(Server) '+ID[socket.id]+'<-'+keyout+": "+JSON.stringify(ddata));
+				}
+				else
+				{
+					var msg = "Group doesn't exist";
+					socket.emit(keyout, error(msg))
+					log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+				}
 			}
 			catch (e)
 			{
