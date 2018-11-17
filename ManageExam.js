@@ -756,7 +756,7 @@ async function getInfoAllExamTeacherMake(tuser)
 // addExam("Exam Test2").then(console.log);
 // setTypeOfExam(10001, "Chemistry").then(console.log);
 // setTimeStartOfExam(10001, config.getDate()+"-"+config.getTime()).then(console.log);
-// setTimeEndOfExam(10001, "2018/11/28-PM:08:08:08").then(console.log);
+// setTimeEndOfExam(10000, "2018/11/16-PM:08:08:08").then(console.log);
 // addOrSetQuestionOfExam(10000, 1, "Q2?").then(console.log);
 // addOrSetSelectionOfQuestionInExam(10000, 0, 1, "S2-1.").then(console.log);
 // addOrSetAnswerOfExam(10000, 1, 3).then(console.log);

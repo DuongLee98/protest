@@ -687,6 +687,8 @@ function getInfoOfGroup(socket, keyin, keyout)
 					ddata = {};
 					ddata.tuser = tuser;
 					ddata.tname = tname;
+					ddata.gid = idg;
+					ddata.gname = await group.getNameGroup(idg);
 					ddata.len = len;
 					ddata.arr = arr;
 					if (tuser == ID[socket.id])
