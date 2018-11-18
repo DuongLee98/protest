@@ -1191,7 +1191,7 @@ function getExam(socket, keyin, keyout)
 {
 	socket.on(keyin,async function (data)
 	{
-		log('(Client) '+socket.id+'->'+keyin+': '+JSON.stringify(data))
+		log('(Client) '+ID[socket.id]+'->'+keyin+': '+JSON.stringify(data))
 		if (LG[socket.id] != "none")
 		{
 			var eid = data.eid;
@@ -1202,6 +1202,12 @@ function getExam(socket, keyin, keyout)
 				{
 					let dataExam = await exam.getExam(eid);
 					dataExam.tname = await teacher.getNameUser(dataExam.tuser);
+					if (dataExam.tuser == ID[socket.id])
+					{
+						dataAnswer = await exam.getAllAnswerOfExam(eid);
+						dataExam.alen = dataAnswer.alen;
+						dataExam.aarr = dataAnswer.aarr;
+					}
 					if(dataExam.publish == false)
 					{
 						let dataGroup = await group.getInfoAllGroupTeacherManage(dataExam.tuser);

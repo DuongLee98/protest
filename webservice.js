@@ -252,6 +252,12 @@ async function getExam(socket, keyin, keyout, data)
 			{
 				let dataExam = await exam.getExam(eid);
 				dataExam.tname = await teacher.getNameUser(dataExam.tuser);
+				if (dataExam.tuser == socket.user)
+				{
+					dataAnswer = await exam.getAllAnswerOfExam(eid);
+					dataExam.alen = dataAnswer.alen;
+					dataExam.aarr = dataAnswer.aarr;
+				}
 				if(dataExam.publish == false)
 				{
 					let dataGroup = await group.getInfoAllGroupTeacherManage(dataExam.tuser);

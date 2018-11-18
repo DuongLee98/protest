@@ -731,6 +731,28 @@ async function getExam(id)
 	}
 }
 
+async function getAllAnswerOfExam(id)
+{
+	var edata = {};
+	try
+	{
+		let alen = await getLengthAnswerOfExam(id);
+		let aarr = [];
+		for (var q=0; q<alen; q++)
+		{
+			var ansewr = await getAnswerOfExam(id, q);
+			aarr.push(ansewr);
+		}
+		edata.alen = alen;
+		edata.aarr = aarr;
+		return edata;
+	}
+	catch(e)
+	{
+		throw new Error(e);
+	}
+}
+
 async function getInfoAllExamTeacherMake(tuser)
 {
 	let data = {};
@@ -759,9 +781,11 @@ async function getInfoAllExamTeacherMake(tuser)
 // setTimeEndOfExam(10000, "2018/11/16-PM:08:08:08").then(console.log);
 // addOrSetQuestionOfExam(10000, 1, "Q2?").then(console.log);
 // addOrSetSelectionOfQuestionInExam(10000, 0, 1, "S2-1.").then(console.log);
-// addOrSetAnswerOfExam(10000, 1, 3).then(console.log);
+// addOrSetAnswerOfExam(10000, 1, 0).then(console.log);
 // getLengthExam().then(console.log);
 // getIdOfExam("Exam Test2").then(console.log);
+// getAnswerOfExam(10000, 1).then(console.log)
+// getAllAnswerOfExam(10000).then(console.log);
 //-------------------------------------------------------------------------------------
 // addMake("xuanhuy", 10001).then(console.log);
 // examExist(10000).then(console.log);
@@ -786,5 +810,6 @@ module.exports =
 	getAcceptGroupForExam: getAcceptGroupForExam,
 
 	getExam: getExam,
+	getAllAnswerOfExam: getAllAnswerOfExam,
 	getInfoAllExamTeacherMake: getInfoAllExamTeacherMake
 }
