@@ -49,6 +49,7 @@ io.on('connection', function(clientSocket){
     getExam(clientSocket, 'getExam', 'rgetExam');
     getInfoAllExamTeacherMake(clientSocket, 'getInfoAllExamTeacherMake', 'rgetInfoAllExamTeacherMake');
     getInfoAllExamAcceptForGroup(clientSocket, 'getInfoAllExamAcceptForGroup', 'rgetInfoAllExamAcceptForGroup')
+    getTimeStamp(clientSocket, 'getTimeStamp', 'rgetTimeStamp');
     
     clientSocket.on('disconnect', function(){
         log('(Client) disconnected: '+ ID[clientSocket.id]+"-"+LG[clientSocket.id]) ;
@@ -1335,6 +1336,30 @@ function getInfoAllExamAcceptForGroup(socket, keyin, keyout)
 				var msg = e;
 				socket.emit(keyout, error(msg))
 				log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+			}
+		}
+		else
+		{
+			var msg = "Must login before you get info";
+			socket.emit(keyout, error(msg))
+			log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+		}
+	});
+}
+
+function getTimeStamp(socket, keyin, keyout)
+{
+	socket.on(keyin, async function (data){
+		if (LG[socket.id] != "none")
+		{
+			try
+			{
+				socket.emit(keyout, success(config.getDate()+'-'+config.getTime()));
+			}
+			catch (e)
+			{
+				var msg = e;
+				socket.emit(keyout, error(msg))
 			}
 		}
 		else
