@@ -14,7 +14,7 @@ const addressDo = '0xa167f39ee5a4ffe808c9319cd1623b879dc2e93e';
 const addressFrom = '0x5609c3ece14be63dff0bc314610990608bc6a7de';
 const privateKey = '0xB75C5664625CADD6D18AAC559D54064310C4A82F8A90E7D61ECC61DAF5A9816F';
 
-const gasPrice = '40000000000';
+const gasPrice = '50000000000';
 const gasLimit = 6000000;
 
 function transaction(ffrom, tto, ddata)

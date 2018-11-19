@@ -368,6 +368,138 @@ async function getInfoAllExamAcceptForGroup(socket, keyin, keyout, data){
 	}
 }
 
+async function createExamByTeacher(socket, keyin, keyout, data){
+	log('(Client) '+socket.user+'->'+keyin+': '+JSON.stringify(data));
+	if (socket.lg == "teacher")
+	{
+		var ename = data.ename;
+		var tuser = data.tuser;
+
+		let existExam = await exam.getExistName(ename);
+		if (existExam == false)
+		{
+			try
+			{
+				let addExam = await exam.addExam(ename);
+				var tx = config.infoTransaction(addExam);
+				if (tx.status == true)
+				{
+					log('(Block ) transaction info: '+JSON.stringify(tx))
+					try
+					{
+						let eid = await exam.getIdOfExam(ename);
+						let existExamMake = await exam.examExist(eid);
+						if (existExamMake == false)
+						{
+							try
+							{
+								let addMake = await exam.addMake(tuser, eid);
+								var tx = config.infoTransaction(addMake);
+								if (tx.status == true)
+								{
+									var ddata = {};
+									ddata.ename = ename;
+									ddata.tuser = tuser;
+									ddata.eid = eid;
+									log('(Server) '+socket.user+'<-'+keyout+": "+JSON.stringify(ddata));
+									log('(Block ) transaction info: '+JSON.stringify(tx))
+									return success(ddata, "create exam success")
+									
+								}
+								else
+								{
+									var msg = 'create exam false'
+									log('(Server) '+socket.user+"<-"+keyout+": "+msg)
+									log('(Block ) transaction info: '+JSON.stringify(tx))
+
+									exam.deleteExam(eid).then(function (edata){
+										log('(Block ) transaction info: '+JSON.stringify(config.infoTransaction(edata)));
+									})
+									return error(msg)
+								}
+							}
+							catch (e)
+							{
+								var msg = 'Error System!'
+								
+								log('(Server) '+socket.user+"<-"+keyout+": "+msg)
+								log('(Block ) transaction error: '+e)
+
+								exam.deleteExam(eid).then(function (edata){
+									log('(Block ) transaction info: '+JSON.stringify(config.infoTransaction(edata)));
+								})
+
+							}
+						}
+						else
+						{
+							var msg = 'Exam managed by other teacher'
+							
+							log('(Server) '+socket.user+"<-"+keyout+": "+msg)
+							log('(Block ) transaction info: '+JSON.stringify(tx))
+
+							exam.deleteExam(eid).then(function (edata){
+								log('(Block ) transaction info: '+JSON.stringify(config.infoTransaction(edata)));
+							})
+							return error(msg)
+						}
+					}
+					catch(e)
+					{
+						var msg = e;
+						
+						log('(Server) '+socket.user+"<-"+keyout+": "+msg)
+						log('(Block ) info: '+e)
+
+						exam.deleteExam(eid).then(function (edata){
+							log('(Block ) transaction info: '+JSON.stringify(config.infoTransaction(edata)));
+						})
+						return error(msg)
+					}
+
+				}
+				else
+				{
+					var msg = 'addExam false'
+					
+					log('(Server) '+socket.user+"<-"+keyout+": "+msg)
+					log('(Block ) transaction info: '+JSON.stringify(tx))
+					return error(msg)
+				}
+			}
+			catch(e)
+			{
+				var msg = 'Error System!'
+				
+				log('(Server) '+socket.user+"<-"+keyout+": "+msg)
+				log('(Block ) transaction error: '+e)
+				return error(msg)
+			}
+		}
+		else
+		{
+			var msg = "Exam exist";
+			
+			log('(Server) '+socket.user+"<-"+keyout+": "+msg)
+			return error(msg)
+		}
+	}
+	else if (socket.lg == "student")
+	{
+		var msg = "You're a student, not a teacher";
+		
+		log('(Server) '+socket.user+"<-"+keyout+": "+msg)
+		return error(msg)
+	}
+	else
+	{
+		var msg = "Must login before you create group";
+		
+		log('(Server) '+socket.user+"<-"+keyout+": "+msg)
+		return error(msg)
+	}
+}
+
 function success(data, msg)
 {
 	let rptrue = {};
@@ -393,5 +525,9 @@ module.exports =
 	getInfoOfGroup: getInfoOfGroup,
 	getInfoAllExamTeacherMake: getInfoAllExamTeacherMake,
 	getExam: getExam,
-	getInfoAllExamAcceptForGroup: getInfoAllExamAcceptForGroup
+	getInfoAllExamAcceptForGroup: getInfoAllExamAcceptForGroup,
+	createExamByTeacher: createExamByTeacher,
+
+
+	exam: exam
 }

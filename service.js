@@ -50,6 +50,10 @@ io.on('connection', function(clientSocket){
     getInfoAllExamTeacherMake(clientSocket, 'getInfoAllExamTeacherMake', 'rgetInfoAllExamTeacherMake');
     getInfoAllExamAcceptForGroup(clientSocket, 'getInfoAllExamAcceptForGroup', 'rgetInfoAllExamAcceptForGroup')
     getTimeStamp(clientSocket, 'getTimeStamp', 'rgetTimeStamp');
+    setExam(clientSocket, 'setExam', 'rsetExam');
+    setGeneralExam(clientSocket, 'setGeneralExam', 'rsetGeneralExam');
+    setAcceptListGroupForExam(clientSocket, 'setAcceptListGroupForExam', 'rsetAcceptListGroupForExam')
+    makeExamByTeacher(clientSocket, 'makeExamByTeacher', 'rmakeExamByTeacher')
     
     clientSocket.on('disconnect', function(){
         log('(Client) disconnected: '+ ID[clientSocket.id]+"-"+LG[clientSocket.id]) ;
@@ -1189,6 +1193,7 @@ function getInfoOfTeacher(socket, keyin, keyout)
 
 function getExam(socket, keyin, keyout)
 {
+	var load = 0;
 	socket.on(keyin,async function (data)
 	{
 		log('(Client) '+ID[socket.id]+'->'+keyin+': '+JSON.stringify(data))
@@ -1196,26 +1201,32 @@ function getExam(socket, keyin, keyout)
 		{
 			var eid = data.eid;
 			let existExam = await exam.getExistId(eid)
+			socket.emit(keyout+'load', load+=16)
 			if (existExam == true)
 			{
 				try
 				{
 					let dataExam = await exam.getExam(eid);
+					socket.emit(keyout+'load', load+=16)
 					dataExam.tname = await teacher.getNameUser(dataExam.tuser);
+					socket.emit(keyout+'load', load+=16)
 					if (dataExam.tuser == ID[socket.id])
 					{
 						dataAnswer = await exam.getAllAnswerOfExam(eid);
+						socket.emit(keyout+'load', load+=16)
 						dataExam.alen = dataAnswer.alen;
 						dataExam.aarr = dataAnswer.aarr;
 					}
 					if(dataExam.publish == false)
 					{
 						let dataGroup = await group.getInfoAllGroupTeacherManage(dataExam.tuser);
+						socket.emit(keyout+'load', load+=16)
 						let lenGroupAcc = 0;
 						let arrGourpAcc = [];
 						for (var i = 0; i<dataGroup.len; i++)
 						{
 							var st = await exam.getAcceptGroupForExam(dataExam.tuser, eid, parseInt(dataGroup.arr[i].gid));
+							socket.emit(keyout+'load', load+=16)
 							if (st==true)
 							{
 								lenGroupAcc++;
@@ -1228,6 +1239,229 @@ function getExam(socket, keyin, keyout)
 					
 					socket.emit(keyout, success(dataExam, "success"));
 					log('(Server) '+ID[socket.id]+'<-'+keyout+": "+JSON.stringify(dataExam));
+				}
+				catch(e)
+				{
+					var msg = e;
+					socket.emit(keyout, error(msg))
+					log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+				}
+			}
+			else
+			{
+				var msg = "Exam doesn't exist";
+				socket.emit(keyout, error(msg))
+				log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+			}
+		}
+		else
+		{
+			var msg = "Must login before you get exam";
+			socket.emit(keyout, error(msg))
+			log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+		}
+	})
+}
+
+function setExam(socket, keyin, keyout)
+{
+	var load = 0.0;
+	socket.on(keyin, async function (data)
+	{
+		log('(Client) '+ID[socket.id]+'->'+keyin+': '+JSON.stringify(data))
+		if (LG[socket.id] != "none")
+		{
+			var eid = data.eid;
+			var tuser = data.tuser
+			let existExam = await exam.getExistId(eid)
+			socket.emit(keyout+'load', (load+=0.1)+'/'+data.qlen)
+			if (existExam == true)
+			{
+				try
+				{
+					let teacheruser = await exam.getTeacher(eid);
+					socket.emit(keyout+'load', (load+=0.1)+'/'+data.qlen)
+
+					if (teacheruser == ID[socket.id])
+					{
+						var dt = data;
+						for (var i=0; i<dt.qlen; i++)
+						{
+							setQ = await exam.addOrSetQuestionOfExam(eid, i, dt.qarr[i].q);
+							socket.emit(keyout+'load', (load+=1.0)+'/'+data.qlen)
+							log('(Block ) transaction info: '+JSON.stringify(config.infoTransaction(setQ)))
+							for (var j=0; j<dt.qarr[i].slen; j++)
+							{
+								setS = await exam.addOrSetSelectionOfQuestionInExam(eid, i, j, dt.qarr[i].sarr[j]);
+								socket.emit(keyout+'load', (load+=0.2)+'/'+data.qlen)
+								log('(Block ) transaction info: '+JSON.stringify(config.infoTransaction(setS)))
+							}
+							setLS = await exam.setLengthSelectionOfQuestionInExam(eid, i, dt.qarr[i].slen);
+							socket.emit(keyout+'load', (load+=0.2)+'/'+data.qlen)
+							log('(Block ) transaction info: '+JSON.stringify(config.infoTransaction(setLS)));
+							setA = await exam.addOrSetAnswerOfExam(eid, i, dt.aarr[i]);
+							socket.emit(keyout+'load', (load+=0.2)+'/'+data.qlen)
+							log('(Block ) transaction info: '+JSON.stringify(config.infoTransaction(setA)));
+						}
+						setLA = await exam.setLengthAnswerOfExam(eid, dt.qlen);
+						socket.emit(keyout+'load', (load+=0.2)+'/'+data.qlen)
+						log('(Block ) transaction info: '+JSON.stringify(config.infoTransaction(setLA)));
+						setLQ = await exam.setLengthQuestionOfExam(eid, dt.qlen);
+						socket.emit(keyout+'load', (load+=0.2)+'/'+data.qlen)
+						log('(Block ) transaction info: '+JSON.stringify(config.infoTransaction(setLQ)));
+
+						socket.emit(keyout, success({}, "success"));
+						log('(Server) '+ID[socket.id]+'<-'+keyout+": "+JSON.stringify({}));
+					}
+					else
+					{
+						var msg = "you doen't own exam";
+						socket.emit(keyout, error(msg))
+						log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+					}
+				}
+				catch(e)
+				{
+					var msg = e;
+					socket.emit(keyout, error(msg))
+					log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+				}
+			}
+			else
+			{
+				var msg = "Exam doesn't exist";
+				socket.emit(keyout, error(msg))
+				log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+			}
+		}
+		else
+		{
+			var msg = "Must login before you get exam";
+			socket.emit(keyout, error(msg))
+			log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+		}
+	})
+}
+
+function setGeneralExam(socket, keyin, keyout)
+{
+	var load = 0.0;
+	socket.on(keyin, async function (data)
+	{
+		log('(Client) '+ID[socket.id]+'->'+keyin+': '+JSON.stringify(data))
+		if (LG[socket.id] != "none")
+		{
+			var eid = data.eid;
+			var tuser = data.tuser
+			let existExam = await exam.getExistId(eid)
+			socket.emit(keyout+'load', (load+=0.1)+'/'+5)
+			if (existExam == true)
+			{
+				try
+				{
+					let teacheruser = await exam.getTeacher(eid);
+					socket.emit(keyout+'load', (load+=0.1)+'/'+5)
+
+					if (teacheruser == ID[socket.id])
+					{
+						var dt = data;
+						if (dt.ename != undefined)
+						{
+							setLA = await exam.editName(eid, dt.ename);
+							socket.emit(keyout+'load', (load+=0.1)+'/'+5)
+							log('(Block ) transaction info: '+JSON.stringify(config.infoTransaction(setLA)));
+							socket.emit(keyout+'load', (load+=1.0)+'/'+5)
+						}
+
+						setLQ = await exam.setPublicOfExam(eid, dt.publish);
+						socket.emit(keyout+'load', (load+=1.0)+'/'+5)
+						log('(Block ) transaction info: '+JSON.stringify(config.infoTransaction(setLQ)));
+
+						setLQ = await exam.setTimeEndOfExam(eid, dt.timeend);
+						socket.emit(keyout+'load', (load+=1.0)+'/'+5)
+						log('(Block ) transaction info: '+JSON.stringify(config.infoTransaction(setLQ)));
+
+						setLQ = await exam.setTimeStartOfExam(eid, dt.timestart);
+						socket.emit(keyout+'load', (load+=1.0)+'/'+5)
+						log('(Block ) transaction info: '+JSON.stringify(config.infoTransaction(setLQ)));
+
+						setLQ = await exam.setTypeOfExam(eid, dt.type);
+						socket.emit(keyout+'load', (load+=1.0)+'/'+5)
+						log('(Block ) transaction info: '+JSON.stringify(config.infoTransaction(setLQ)));
+
+						socket.emit(keyout, success({}, "success"));
+						log('(Server) '+ID[socket.id]+'<-'+keyout+": "+JSON.stringify({}));
+					}
+					else
+					{
+						var msg = "you doen't own exam";
+						socket.emit(keyout, error(msg))
+						log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+					}
+				}
+				catch(e)
+				{
+					var msg = e;
+					socket.emit(keyout, error(msg))
+					log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+				}
+			}
+			else
+			{
+				var msg = "Exam doesn't exist";
+				socket.emit(keyout, error(msg))
+				log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+			}
+		}
+		else
+		{
+			var msg = "Must login before you get exam";
+			socket.emit(keyout, error(msg))
+			log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+		}
+	})
+}
+
+function setAcceptListGroupForExam(socket, keyin, keyout)
+{
+	var load = 0.0;
+	socket.on(keyin, async function (data)
+	{
+		log('(Client) '+ID[socket.id]+'->'+keyin+': '+data)
+		if (LG[socket.id] != "none")
+		{
+			var eid = data.eid;
+			var tuser = data.tuser
+			let existExam = await exam.getExistId(eid)
+			socket.emit(keyout+'load', (load+=0.1)+'/'+data.len)
+			if (existExam == true)
+			{
+				try
+				{
+					let teacheruser = await exam.getTeacher(eid);
+					socket.emit(keyout+'load', (load+=0.1)+'/'+data.len)
+
+					if (teacheruser == ID[socket.id])
+					{
+						var dt = data;
+
+						var AllGroup = await group.getInfoAllGroupTeacherManage(tuser);
+						socket.emit(keyout+'load', (load+=0.1)+'/'+data.len)
+						for (var i=0; i<AllGroup.len; i++)
+						{
+							setLQ = await exam.setAcceptGroupForExam(tuser, eid, AllGroup.arr[i].gid, dt.arr[AllGroup.arr[i].gid]);
+							socket.emit(keyout+'load', (load+=1.0)+'/'+data.len)
+							log('(Block ) transaction info: '+JSON.stringify(config.infoTransaction(setLQ)));
+						}
+						socket.emit(keyout, success({}, "success"));
+						log('(Server) '+ID[socket.id]+'<-'+keyout+": "+JSON.stringify({}));
+					}
+					else
+					{
+						var msg = "you doen't own exam";
+						socket.emit(keyout, error(msg))
+						log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+					}
 				}
 				catch(e)
 				{
@@ -1353,6 +1587,136 @@ function getInfoAllExamAcceptForGroup(socket, keyin, keyout)
 	});
 }
 
+function makeExamByTeacher(socket, keyin, keyout)
+{
+	socket.on(keyin, async function (data){
+		log('(Client) '+ID[socket.id]+'->'+keyin+': '+JSON.stringify(data));
+		if (LG[socket.id] == "teacher")
+		{
+			var ename = data.ename;
+			var tuser = data.tuser;
+
+			let existExam = await exam.getExistName(ename);
+			socket.emit(keyout+'load', "1");
+			if (existExam == false)
+			{
+				try
+				{
+					let addExam = await exam.addExam(ename);
+					socket.emit(keyout+'load', "50");
+					var tx = config.infoTransaction(addExam);
+					if (tx.status == true)
+					{
+						log('(Block ) transaction info: '+JSON.stringify(tx))
+						try
+						{
+							let eid = await exam.getIdOfExam(ename);
+							socket.emit(keyout+'load', "60");
+							let existExamMake = await exam.examExist(eid);
+							socket.emit(keyout+'load', "70");
+							if (existExamMake == false)
+							{
+								try
+								{
+									let addMake = await exam.addMake(tuser, eid);
+									socket.emit(keyout+'load', "100");
+									var tx = config.infoTransaction(addMake);
+									if (tx.status == true)
+									{
+										var ddata = {};
+										ddata.ename = ename;
+										ddata.tuser = tuser;
+										ddata.eid = eid;
+										socket.emit(keyout, success(ddata, "create Group success"))
+										log('(Server) '+ID[socket.id]+'<-'+keyout+": "+JSON.stringify(ddata));
+										log('(Block ) transaction info: '+JSON.stringify(tx))
+									}
+									else
+									{
+										var msg = 'create exam false'
+										log('(Server) '+socket.user+"<-"+keyout+": "+msg)
+										log('(Block ) transaction info: '+JSON.stringify(tx))
+
+										exam.deleteExam(eid).then(function (edata){
+											log('(Block ) transaction info: '+JSON.stringify(config.infoTransaction(edata)));
+										})
+									}
+								}
+								catch (e)
+								{
+									var msg = 'Error System!'
+									socket.emit(keyout, error(msg))
+									log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+									log('(Block ) transaction error: '+e)
+
+									exam.deleteExam(eid).then(function (edata){
+										log('(Block ) transaction info: '+JSON.stringify(config.infoTransaction(edata)));
+									})
+								}
+							}
+							else
+							{
+								var msg = 'Exam managed by other teacher'
+								socket.emit(keyout, error(msg))
+								log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+								log('(Block ) transaction info: '+JSON.stringify(tx))
+
+								exam.deleteExam(eid).then(function (edata){
+									log('(Block ) transaction info: '+JSON.stringify(config.infoTransaction(edata)));
+								})
+							}
+						}
+						catch(e)
+						{
+							var msg = e;
+							socket.emit(keyout, error(msg))
+							log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+							log('(Block ) info: '+e)
+
+							exam.deleteExam(eid).then(function (edata){
+								log('(Block ) transaction info: '+JSON.stringify(config.infoTransaction(edata)));
+							})
+						}
+
+					}
+					else
+					{
+						var msg = 'addExam false'
+						socket.emit(keyout, error(msg))
+						log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+						log('(Block ) transaction info: '+JSON.stringify(tx))
+					}
+				}
+				catch(e)
+				{
+					var msg = 'Error System!'
+					socket.emit(keyout, error(msg))
+					log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+					log('(Block ) transaction error: '+e)
+				}
+			}
+			else
+			{
+				var msg = "Group exist";
+				socket.emit(keyout, error(msg))
+				log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+			}
+		}
+		else if (LG[socket.id] == "student")
+		{
+			var msg = "You're a student, not a teacher";
+			socket.emit(keyout, error(msg))
+			log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+		}
+		else
+		{
+			var msg = "Must login before you create group";
+			socket.emit(keyout, error(msg))
+			log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+		}
+	});
+}
+
 function getTimeStamp(socket, keyin, keyout)
 {
 	socket.on(keyin, async function (data){
@@ -1360,6 +1724,31 @@ function getTimeStamp(socket, keyin, keyout)
 		{
 			try
 			{
+				socket.emit(keyout, success(config.getDate()+'-'+config.getTime()));
+			}
+			catch (e)
+			{
+				var msg = e;
+				socket.emit(keyout, error(msg))
+			}
+		}
+		else
+		{
+			var msg = "Must login before you get info";
+			socket.emit(keyout, error(msg))
+			log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+		}
+	});
+}
+
+function addAnExam(socket, keyin, keyout)
+{
+	socket.on(keyin, async function (data){
+		if (LG[socket.id] != "none")
+		{
+			try
+			{
+				
 				socket.emit(keyout, success(config.getDate()+'-'+config.getTime()));
 			}
 			catch (e)

@@ -779,13 +779,16 @@ async function getInfoAllExamTeacherMake(tuser)
 // setTypeOfExam(10001, "Chemistry").then(console.log);
 // setTimeStartOfExam(10001, config.getDate()+"-"+config.getTime()).then(console.log);
 // setTimeEndOfExam(10000, "2018/11/16-PM:08:08:08").then(console.log);
-// addOrSetQuestionOfExam(10000, 1, "Q2?").then(console.log);
-// addOrSetSelectionOfQuestionInExam(10000, 0, 1, "S2-1.").then(console.log);
-// addOrSetAnswerOfExam(10000, 1, 0).then(console.log);
+// addOrSetQuestionOfExam(10000, 3, "Q4? Cau 4 dap an").then(console.log);
+// addOrSetSelectionOfQuestionInExam(10000, 1, 2, "Seclection 3").then(console.log);
+// addOrSetAnswerOfExam(10000, 3, 1).then(console.log);
 // getLengthExam().then(console.log);
 // getIdOfExam("Exam Test2").then(console.log);
 // getAnswerOfExam(10000, 1).then(console.log)
 // getAllAnswerOfExam(10000).then(console.log);
+// deleteExam(10002).then(console.log)
+// getTimeEndOfExam(10003).then(console.log);
+// getTypeOfExam(10003).then(console.log)
 //-------------------------------------------------------------------------------------
 // addMake("xuanhuy", 10001).then(console.log);
 // examExist(10000).then(console.log);
@@ -795,9 +798,9 @@ async function getInfoAllExamTeacherMake(tuser)
 // getLengthListExam("xuanhuy").then(console.log);
 // getTeacher(10000).then(console.log);
 // setAcceptGroupForExam("xuanhuy", 10000, 1010, true).then(console.log);
-// deleteMake("xuanhuy", 10000).then(console.log);
+// deleteMake("xuanhuy", 10002).then(console.log);
 //-----------------------------------------------------------------------------
-// getExam(10001).then(function (data){
+// getExam(10000).then(function (data){
 // 	console.log(data);
 // });
 // getDetailExam(10000).then(console.log);
@@ -806,8 +809,30 @@ async function getInfoAllExamTeacherMake(tuser)
 module.exports = 
 {
 	getExistId: getExistId,
+	addExam: addExam,
+	getExistName: getExistName,
+	getIdOfExam: getIdOfExam,
+	deleteExam: deleteExam,
+	setTimeStartOfExam: setTimeStartOfExam,
+	setTimeEndOfExam: setTimeEndOfExam,
+	setTypeOfExam: setTypeOfExam,
+	addOrSetQuestionOfExam: addOrSetQuestionOfExam,
+	addOrSetSelectionOfQuestionInExam: addOrSetSelectionOfQuestionInExam,
+	addOrSetAnswerOfExam: addOrSetAnswerOfExam,
+	setLengthAnswerOfExam: setLengthAnswerOfExam,
+	setLengthQuestionOfExam: setLengthQuestionOfExam,
+	setLengthSelectionOfQuestionInExam: setLengthSelectionOfQuestionInExam,
+	editName: editName,
+	setPublicOfExam: setPublicOfExam,
+	setTimeEndOfExam: setTimeEndOfExam,
+	setTimeStartOfExam: setTimeStartOfExam,
+	setTypeOfExam: setTypeOfExam,
 
 	getAcceptGroupForExam: getAcceptGroupForExam,
+	examExist: examExist,
+	addMake: addMake,
+	getTeacher: getTeacher,
+	setAcceptGroupForExam: setAcceptGroupForExam,
 
 	getExam: getExam,
 	getAllAnswerOfExam: getAllAnswerOfExam,
