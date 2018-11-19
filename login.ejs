@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="/stylesheets/style.css">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+<title>Page Title</title>
+</head>
+<body>
+<div class="text-center bg-transparent" >
+	<img src="/images/logo.png" class="img-fluid mb-4" alt="logoprotest" style="width: 150px">
+</div>
+<div class="d-flex align-content-end flex-wrap">
+	<form class="form-horizontal d-block mx-auto" action="/login/" method="post">
+  		<div class="input-group mb-2">
+			<div class="input-group-prepend">
+				<span class="input-group-text" id="inputGroup-sizing-default">User</span>
+			</div>
+			<input type="text" name="user" placeholder="Enter User" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default">
+		</div>
+	  	<div class="input-group mb-3">
+			<div class="input-group-prepend">
+				<span class="input-group-text" id="inputGroup-sizing-default">Pass</span>
+			</div>
+			<input type="password" name="pass" placeholder="Enter Password" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default">
+		</div>
+	 	 <div class="input-group mb-3">
+			<button type="submit" name="submit" class="btn btn-success">Login</button>
+		</div>
+	</form>
+</div>
+</body>
+</html>
