@@ -1,0 +1,33 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<title>title</title>
+</head>
+<body>
+	<div class="" id="main">
+	</div>
+<script type="text/javascript">
+	<% var length = len %>
+	var length = <%= len %>;
+	var arr = [];
+	<% for(var i = length-1; i >= 0; i--) {%>
+	var data = {};
+	data.eid = <%= arr[i].eid %>;
+	data.created = '<%= arr[i].created %>';
+	data.ename = '<%= arr[i].name %>';
+	data.type = '<%= arr[i].type %>';
+	data.timeStart = '<%= arr[i].timeStart %>';
+	data.timeEnd = '<%= arr[i].timeEnd %>';
+	data.qlen = <%= arr[i].qlen %>;
+	data.publish = <%= arr[i].publish %>;
+	arr.push(data)
+	<% } %>;
+	for (var i = 0; i<length; i++)
+	{
+		document.getElementById('main').innerHTML +=  '<div class="" id="E'+arr[i].eid+'"><div class="" id="gid"><a href="/exams/'+arr[i].eid+'">EID: '+arr[i].eid+'</a></div><div class="" id="created">created: '+arr[i].created+'</div><div class="" id="ename">Name: '+arr[i].ename+'</div><div class="" id="type">Type: '+ arr[i].type +'</div><div class="" id="timeStart">TimeStart: '+ arr[i].timeStart +'</div><div class="" id="timeEnd">TimeEnd: '+ arr[i].timeEnd +'</div><div class="" id="qlen">Qlen: '+ arr[i].qlen +'</div><div class="" id="publish">Publish: '+ arr[i].publish +'</div><hr></div>'
+	}
+
+</script>
+</body>
+</html>

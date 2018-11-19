@@ -1,0 +1,29 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<title>title</title>
+</head>
+<body>
+	<div class="" id="main">
+	</div>
+<script type="text/javascript">
+	<% var length = len %>
+	var length = <%= len %>;
+	var arr = [];
+	<% for(var i = length-1; i >= 0; i--) {%>
+	var data = {};
+	data.gid = <%= arr[i].gid %>;
+	data.gdate = '<%= arr[i].gdate %>';
+	data.gname = '<%= arr[i].gname %>';
+	data.gmember = <%= arr[i].gmember %>;
+	arr.push(data)
+	<% } %>;
+	for (var i = 0; i<length; i++)
+	{
+		document.getElementById('main').innerHTML +=  '<div class="" id="G'+arr[i].gid+'"><div class="" id="gid"><a href="/groups/'+arr[i].gid+'">GID: '+arr[i].gid+'</a></div><div class="" id="gdate">Date: '+arr[i].gdate+'</div><div class="" id="gdate">Name: '+arr[i].gname+'</div><div class="" id="gdate">Member: '+ arr[i].gmember +'</div><hr></div>'
+	}
+
+</script>
+</body>
+</html>

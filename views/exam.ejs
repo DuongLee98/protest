@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="/stylesheets/style.css">
+<link rel="stylesheet" type="text/css" href="/stylesheets/bootstrap.css">
+<title>Create Exam</title>
+</head>
+
+<body>
+	<div id="check_mark" class="check_mark" style="display: none;">
+	  <div class="sa-icon sa-success animate">
+	    <span class="sa-line sa-tip animateSuccessTip"></span>
+	    <span class="sa-line sa-long animateSuccessLong"></span>
+	    <div class="sa-placeholder"></div>
+	    <div class="sa-fix"></div>
+	  </div>
+	</div>
+	<div id="load"><div id="iloader"><div id="iloadertext">0%</div></div><div id="loader"></div></div>
+	<div class="container-fluid w-75" id="myDiv">
+		<nav class="navbar navbar-light bg-transparent">
+		  <a class="navbar-brand" href="#">
+		    <img src="/docs/4.0/assets/brand/bootstrap-solid.svg" width="30" height="30" class="d-inline-block align-top" alt="">
+		    Bootstrap
+		  </a>
+		</nav>
+	
+		<div class="row">
+			<div class="col-8 rounded mr-auto bg-white p-4" id="content">
+				<form id="form" method="post">
+					
+					
+				</form>
+				<div class="form-group row">
+					<div class="col-sm-3 mx-auto">
+						<button onclick="setExam()" type="submit" class="btn btn-primary">Create</button>
+					</div>
+					<div class="col-sm-3 mx-auto">
+						<button onclick="AddQ()" type="button" class="btn btn-primary">Add Question</button>
+					</div>
+				</div>
+			</div>	
+			
+
+			<div class="col-4 rounded bg-transparent" id="sidebar">
+				<div class="rounded p-2 mb-1" id="info">
+					<div class="card text-white bg-success mb-3">
+					  <div class="card-header">
+					    General
+					  </div>
+					  <div class="card-body">
+					    <form>
+					    	 <div class="form-group row">
+							    
+							    <div class="col-sm-12">
+							      <input type="text" name="eid" class="form-control" id="eid" disabled="disabled">
+							    </div>
+						  	</div>
+						  	<div class="form-group row">
+							    
+							    <div class="col-sm-12">
+							      <input type="text" name="eid" class="form-control" id="created" disabled="disabled">
+							    </div>
+						  	</div>
+						 	 <div class="form-group row">
+							    
+							    <div class="col-sm-12">
+							      <input type="text" name="ename" class="form-control" id="ename" >
+							    </div>
+						  	</div>
+						  	<div class="form-group row">
+							  	
+								  <div class="col-sm-12">
+								    <input class="form-control" type="datetime-local" name="timestart" value="" id="timestart">
+							  	</div>
+							</div>
+							<div class="form-group row">
+							  
+							  <div class="col-sm-12">
+							    <input class="form-control" type="datetime-local" name="timeend" value="" id="timeend">
+							  </div>
+							</div>
+							<div class="form-group row">
+							  	<div class="col-sm-12">
+								  <select class="custom-select" id="type" name="type">
+									  <div class="col-sm-12">
+									    <option id="Math" name="Math" value="Math">Math</option>
+								        <option id="Physics" name="Physics" value="Physics">Physics</option>
+								        <option id="Chemistry" name="Chemistry" value="Chemistry">Chemistry</option>
+								        <option id="Civic education" name="Civic education" value="Civic education">Civic education</option>
+									  </div>
+									</select>
+								</div>
+							</div>
+							<div class="input-group mb-3">
+							  <div class="input-group-prepend">
+							    <div class="input-group-text">
+							      <input type="checkbox" id="publish" aria-label="Checkbox for following text input">
+							    </div>
+							  </div>
+							  <label class="form-control">Publish</label>
+							</div>
+						  	<div class="form-group row">
+							    <div class="col-sm-5 mx-auto">
+							      <button onclick="setGeneral()" type="button" class="btn btn-primary">Save</button>
+							    </div>
+						  	</div>
+						</form>
+					  </div>
+					</div>
+				</div>
+
+				<div class="rounded p-2" id="tool">
+					<div class="form-control mb-1"><span class="input-group-text">Accept For Group Do Contest</span></div>
+					
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+<script src="/javascripts/load.js"></script>
+<script src="/javascripts/editexam.js"></script>
+<script src="/javascripts/socket.io.js"></script>
+<script>
+	var socket = io('http://0.0.0.0:3000');
+	let AllData = {};
+	let GroupData = {};
+	socket.emit('login', {'user': '<%= skuser %>', 'pass': '<%= skpass %>'});
+	socket.on('rlogin', function(data)
+	{
+		getExam();
+		socket.on('rgetExamload', function(data)
+		{
+			document.getElementById('iloadertext').innerHTML = data+"%";
+		})
+		socket.on('rgetExam', function(info)
+		{
+			if (info.cd == 0)
+			{
+				AllData = info.data;
+				setViewGeneral()
+				length = info.data.qlen;
+				for (var i=0; i<length; i++)
+				{
+					var q = info.data.qarr[i];
+					var t = new Qt(q.q, q.slen, q.sarr, info.data.aarr[i]);
+					qarr.push(t);
+				}
+				document.getElementById('tool').innerHTML='<div class="form-control mb-1"><span class="input-group-text">Accept For Group Do Contest</span></div>'
+				if (AllData.publish == false)
+				{
+					socket.emit('getInfoAllGroupTeacherManage', {userteacher: '<%= skuser %>'});
+					socket.on('rgetInfoAllGroupTeacherManage', function(info){
+						if (info.cd == 0)
+						{
+							
+							GroupData = info.data;
+							for (var i=0; i<GroupData.len; i++)
+							{
+								var tick = false;
+								for (var j=0; j<AllData.lenGroupAcc; j++)
+								{
+									if (parseInt(GroupData.arr[i].gid) == AllData.arrGourpAcc[j])
+									{
+										tick = true;
+										break;
+									}
+								}
+								if (tick)
+									document.getElementById('tool').innerHTML+='<div class="input-group mb-3"><div class="input-group-prepend"><div class="input-group-text"><input type="checkbox" id="G'+GroupData.arr[i].gid+'" value="'+GroupData.arr[i].gid+'" checked></div></div><label class="form-control">'+GroupData.arr[i].gid+' - '+GroupData.arr[i].gname+'</label><div class="input-group-prepend"><span class="input-group-text">'+GroupData.arr[i].gmember+'</span></div></div>'
+								else
+									document.getElementById('tool').innerHTML+='<div class="input-group mb-3"><div class="input-group-prepend"><div class="input-group-text"><input type="checkbox" id="G'+GroupData.arr[i].gid+'" value="'+GroupData.arr[i].gid+'"></div></div><label class="form-control">'+GroupData.arr[i].gid+' - '+GroupData.arr[i].gname+'</label><div class="input-group-prepend"><span class="input-group-text">'+GroupData.arr[i].gmember+'</span></div></div>'
+							}
+							document.getElementById('tool').innerHTML += '<div class="form-group row"><div class="col-sm-5 mx-auto"><button onclick="setAcceptGroup()" type="button" class="btn btn-primary">Accept</button></div></div>'
+							setup();
+							Success();
+							setTimeout(showPage, 2000);
+						}
+					})
+				}
+				else
+				{
+					document.getElementById('tool').innerHTML += '<label class="form-control">You can not set what group do exam because publish is true (Exam is publishing for all student)</label>'
+					setup()
+					Success();
+					setTimeout(showPage, 2000);
+				}
+			}
+		})
+
+		socket.on('rsetExamload', function(data){
+			document.getElementById('iloadertext').innerHTML = data;
+		})
+		socket.on('rsetExam', function(data){
+			console.log(data);
+			if(data.cd == 0)
+			{
+				location.reload();
+			}
+		})
+
+		socket.on('rsetGeneralExamload', function(data){
+			document.getElementById('iloadertext').innerHTML = data;
+		})
+		socket.on('rsetGeneralExam', function(data){
+			console.log(data);
+			if(data.cd == 0)
+			{
+				location.reload();
+			}
+		})
+
+		socket.on('rsetAcceptListGroupForExamload', function(data){
+			document.getElementById('iloadertext').innerHTML = data;
+		})
+		socket.on('rsetAcceptListGroupForExam', function(data){
+			console.log(data);
+			if(data.cd == 0)
+			{
+				location.reload();
+			}
+		})
+	});
+	
+	function getExam()
+	{
+		socket.emit('getExam', {eid: <%= eid %>});
+		loadPage();
+	}
+
+	function setExam()
+	{
+		for (var i=0; i<length; i++)
+		{
+			Set(i);
+		}
+		var data = {};
+		data.eid = AllData.eid;
+		data.tuser = AllData.tuser;
+		data.qlen = parseInt(length);
+		data.qarr = [];
+		data.aarr = [];
+		for (var i=0; i<length; i++)
+		{
+			info = {};
+			info.q = qarr[i].qt;
+			info.slen = parseInt(qarr[i].slen);
+			info.sarr = qarr[i].sarr;
+			data.qarr.push(info);
+			data.aarr.push(parseInt(qarr[i].aw));
+		}
+		console.log(data);
+		socket.emit('setExam', data);
+		loadPage();
+		
+	}
+
+	function setGeneral()
+	{
+		var data = {};
+		data.tuser = '<%= skuser %>'
+		data.eid = <%= eid %>
+		if (document.getElementById('ename').value != AllData.name)
+		{
+			data.ename = document.getElementById('ename').value;
+		}
+		data.type = document.getElementById('type').value
+		data.publish = document.getElementById('publish').checked
+		data.timestart = standardized(document.getElementById('timestart').value)
+		data.timeend = standardized(document.getElementById('timeend').value)
+		console.log(data);
+		socket.emit('setGeneralExam', data);
+		loadPage();
+		
+	}
+
+	function setViewGeneral()
+	{
+		document.getElementById('eid').value = AllData.eid;
+		document.getElementById('created').value = AllData.created;
+		document.getElementById('ename').value = AllData.name;
+		document.getElementById('type').value = AllData.type;
+		document.getElementById('publish').checked = AllData.publish;
+		var dat = AllData.timeStart.split('-')
+		document.getElementById('timestart').value = dateConvertor(dat[0])+'T'+timeConvertor(dat[1]);
+		var dat = AllData.timeEnd.split('-')
+		document.getElementById('timeend').value = dateConvertor(dat[0])+'T'+timeConvertor(dat[1]);
+	}
+
+	function setAcceptGroup()
+	{
+		var data = {};
+		data.tuser = '<%= skuser %>';
+		data.eid = <%= eid %>;
+		var arr = [];
+		for (var i=0; i<GroupData.len; i++)
+		{
+			var gid = 'G'+GroupData.arr[i].gid;
+			
+			arr[document.getElementById(gid).value] = document.getElementById(gid).checked;
+		}
+		data.len = GroupData.len;
+		data.arr = arr;
+		socket.emit('setAcceptListGroupForExam', data);
+		loadPage();
+	}
+
+	
+</script> 
+
+</html>

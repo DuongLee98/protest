@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="/stylesheets/style.css">
+<link rel="stylesheet" type="text/css" href="/stylesheets/bootstrap.css">
+<title>Create Exam</title>
+</head>
+<body>
+	<div id="check_mark" class="check_mark" style="display: none;">
+	  <div class="sa-icon sa-success animate">
+	    <span class="sa-line sa-tip animateSuccessTip"></span>
+	    <span class="sa-line sa-long animateSuccessLong"></span>
+	    <div class="sa-placeholder"></div>
+	    <div class="sa-fix"></div>
+	  </div>
+	</div>
+	<div id="load"><div id="iloader"><div id="iloadertext">0%</div></div><div id="loader"></div></div>
+	<div class="container-fluid w-75" id="myDiv">
+		<nav class="navbar navbar-light bg-transparent" style="
+   margin-right: -15px;
+    margin-left: -15px;
+    background-image: url('/images/nar.png');
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+">
+		 
+		</nav>
+	
+		<div class="row">
+			<div class="col-8 rounded mr-auto bg-white p-4" id="content">
+				<div class="card text-white bg-success mb-3">
+				  <div class="card-header">
+				    Create a contest
+				  </div>
+				  <div class="card-body">
+				    <form>
+					 	 <div class="form-group row">
+						    <div class="col-sm-3">
+						      <label class="form-text">Name Group</label>
+						    </div>
+						    <div class="col-sm-9">
+						      <input type="text" name="ename" class="form-control" id="ename" >
+						    </div>
+					  	</div>
+					  	<div class="form-group row">
+						  	<div class="col-sm-3">
+						      <label class="form-text">Time Start</label>
+						    </div>
+						    <div class="col-sm-9">
+							    <input class="form-control" type="datetime-local" name="timestart" value="" id="timestart">
+						  	</div>
+						</div>
+						<div class="form-group row">
+						 <div class="col-sm-3">
+						      <label class="form-text">Time End</label>
+						    </div>
+						    <div class="col-sm-9">
+						    <input class="form-control" type="datetime-local" name="timeend" value="" id="timeend">
+						  </div>
+						</div>
+						<div class="form-group row">
+							<div class="col-sm-3">
+						      <label class="form-text">Subject</label>
+						    </div>
+						    <div class="col-sm-9">
+							  <select class="custom-select" id="type" name="type">
+								  <div class="col-sm-12">
+								    <option id="Math" name="Math" value="Math">Math</option>
+							        <option id="Physics" name="Physics" value="Physics">Physics</option>
+							        <option id="Chemistry" name="Chemistry" value="Chemistry">Chemistry</option>
+							        <option id="Civic education" name="Civic education" value="Civic education">Civic education</option>
+								  </div>
+								</select>
+							</div>
+						</div>
+						<div class="input-group mb-3">
+						  <div class="input-group-prepend">
+						    <div class="input-group-text">
+						      <input type="checkbox" id="publish" aria-label="Checkbox for following text input">
+						    </div>
+						  </div>
+						  <label class="form-control">Publish</label>
+						</div>
+					  	<div class="form-group row">
+						    <div class="col-sm-5 mx-auto">
+						      <button onclick="makeExamByTeacher()" type="button" class="btn btn-primary">Create</button>
+						    </div>
+					  	</div>
+					</form>
+				  </div>
+				</div>
+					
+			</div>
+			<div class="col-4 rounded bg-transparent" id="sidebar">
+				<div class="rounded p-2" id="info">
+					
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+<script src="/javascripts/load.js"></script>
+<script src="/javascripts/socket.io.js"></script>
+<script>
+	var socket = io('http://0.0.0.0:3000');
+	socket.emit('login', {'user': '<%= user %>', 'pass': '<%= pass %>'});
+	loadPage();
+	let NewExam = {};
+	socket.on('rlogin', function(data)
+	{
+		if (data.cd==0)
+		{
+			showPage();
+			socket.on('rmakeExamByTeacherload', function(data){
+				document.getElementById('iloadertext').innerHTML = data+"%";
+			})
+			socket.on('rmakeExamByTeacher', function(info){
+				if (info.cd==0)
+				{
+					NewExam = info.data;
+					setGeneral();
+				}
+			})
+
+			socket.on('rsetGeneralExamload', function(data){
+				document.getElementById('iloadertext').innerHTML = data;
+			})
+			socket.on('rsetGeneralExam', function(data){
+				console.log(data);
+				if(data.cd == 0)
+				{
+					location.href = '/exams/'+NewExam.eid+'/edit';
+				}
+			})
+		}
+	})
+	function makeExamByTeacher()
+	{
+		socket.emit('makeExamByTeacher', getGeneral());
+		loadPage();
+	}
+
+	function setGeneral()
+	{
+		var data = {};
+		data.tuser = '<%= user %>'
+		data.eid = NewExam.eid;
+		data.type = document.getElementById('type').value
+		data.publish = document.getElementById('publish').checked
+		data.timestart = standardized(document.getElementById('timestart').value)
+		data.timeend = standardized(document.getElementById('timeend').value)
+		console.log(data);
+		socket.emit('setGeneralExam', data);
+		loadPage();
+	}
+	function getGeneral()
+	{
+		data = {};
+		data.tuser = '<%= user %>'
+		data.ename = document.getElementById('ename').value;
+		data.type = document.getElementById('type').value
+		data.publish = document.getElementById('publish').checked
+		data.timestart = standardized(document.getElementById('timestart').value)
+		data.timeend = standardized(document.getElementById('timeend').value)
+		return data;
+	}
+</script>
+</html>

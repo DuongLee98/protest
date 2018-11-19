@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="/stylesheets/style.css">
+<link rel="stylesheet" type="text/css" href="/stylesheets/bootstrap.css">
+<title><%= name%></title>
+</head>
+<body>
+	<div class="container-fluid w-75">
+		<nav class="navbar navbar-light bg-transparent">
+		  <a class="navbar-brand" href="#">
+		    <img src="/docs/4.0/assets/brand/bootstrap-solid.svg" width="30" height="30" class="d-inline-block align-top" alt="">
+		    Bootstrap
+		  </a>
+		</nav>
+	
+		<div class="row">
+			<div class="col-8 rounded mr-auto bg-white p-2" id="content">
+				<div class="list-group list-group-horizontal">
+				  <a href="#" class="list-group-item list-group-item-action active">
+				    Infomation
+				  </a>
+				  <a href="/users/t/<%= tuser %>/group/" class="list-group-item list-group-item-action">Manage Group</a>
+				  <a href="/users/t/<%= tuser %>/exam/" class="list-group-item list-group-item-action">Manage exam</a>
+				</div>
+			</div>
+			<div class="col-4 rounded bg-transparent" id="sidebar">
+				<div class="rounded p-2" id="info">
+					<canvas class="rounded border border-primary d-block mx-auto" id="canvas"></canvas>
+					<hr>
+					<blockquote class="infobq"><p id="name">Name: <font color="black"><%= name %></font></p></blockquote>
+					<blockquote class="infobq"><p id="phone">Phone: <font color="black"><%= phone %></font></p></blockquote>
+					<blockquote class="infobq"><p id="cmnd">CMND: <font color="black"><%= cmnd %></font></p></blockquote>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+<script src="/javascripts/qrcode.js"></script>
+<script>
+	var QRCode = require('qrcode')
+	var canvas = document.getElementById('canvas')
+  	QRCode.toCanvas(document.getElementById('canvas'), '<%= tuser %>', function (error) {
+	    if (error) console.error(error)
+	    console.log('success!');
+  	})
+</script> 
+</html>

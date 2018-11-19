@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>title</title>
+</head>
+<body>
+	<div class="" id="listexam"><a href="/groups/<%= gid %>/exam">List Exam Accept For Group</a></div>
+	<div class="" id="tuser"><%= tuser %></div>
+	<div class="" id="tname"><%= tname %></div>
+	<div class="" id="gid"><%= gid %></div>
+	<div class="" id="gname"><%= gname %></div>
+	<div class="" id="main">
+	</div>
+<script type="text/javascript">
+	<% var length = len %>
+	var length = <%= len %>;
+	var control = <%= control %>
+	var arr = [];
+	for (var i=1; i<=4; i++)
+		arr[i] = [];
+	<% for(var i = length-1; i >= 0; i--) {%>
+	var data = {};
+	data.suser = '<%= arr[i].user %>';
+	data.sname = '<%= arr[i].name %>';
+	data.status = <%= arr[i].status %>;
+	arr[data.status].push(data)
+	<% } %>;
+	for (var i = 1; i<=4; i++)
+	{
+		if (i == 1)
+			document.getElementById('main').innerHTML += '<div class "" status"accept">Accept</div>'
+		else if (i == 2)
+			document.getElementById('main').innerHTML += '<div class "" status"join">Join</div>'
+		else if (i == 3)
+			document.getElementById('main').innerHTML += '<div class "" status"add">Add</div>'
+		else if (i == 4)
+			document.getElementById('main').innerHTML += '<div class "" status"urefuse">Refuse</div>'
+		for (var j = 0; j<arr[i].length; j++)
+		{
+			document.getElementById('main').innerHTML +=  '<div class="" id="'+arr[i][j].user+'"><div class="" id="suser"><a href="/users/s/'+arr[i][j].suser+'">User: '+arr[i][j].suser+'</a></div><div class="" id="sname">Date: '+arr[i][j].sname+'</div><div class="" id="status">Name: '+arr[i][j].status+'</div><hr></div>'
+		}
+	}
+
+</script>
+</body>
+</html>
