@@ -785,7 +785,7 @@ async function getInfoAllExamTeacherMake(tuser)
 // getLengthExam().then(console.log);
 // getIdOfExam("Exam Test2").then(console.log);
 // getAnswerOfExam(10000, 1).then(console.log)
-// getAllAnswerOfExam(10000).then(console.log);
+// getAllAnswerOfExam(10005).then(console.log);
 // deleteExam(10002).then(console.log)
 // getTimeEndOfExam(10003).then(console.log);
 // getTypeOfExam(10003).then(console.log)

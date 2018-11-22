@@ -54,6 +54,7 @@ io.on('connection', function(clientSocket){
     setGeneralExam(clientSocket, 'setGeneralExam', 'rsetGeneralExam');
     setAcceptListGroupForExam(clientSocket, 'setAcceptListGroupForExam', 'rsetAcceptListGroupForExam')
     makeExamByTeacher(clientSocket, 'makeExamByTeacher', 'rmakeExamByTeacher')
+    autoMask(clientSocket, 'autoMask', 'rautoMask');
     
     clientSocket.on('disconnect', function(){
         log('(Client) disconnected: '+ ID[clientSocket.id]+"-"+LG[clientSocket.id]) ;
@@ -566,7 +567,7 @@ function searchInfo(socket, keyin, keyout)
 {
 	socket.on(keyin,async function (data)
 	{
-		log('(Client) '+socket.id+'->'+keyin+': '+JSON.stringify(data))
+		log('(Client) '+ID[socket.id]+'->'+keyin+': '+JSON.stringify(data))
 		if (LG[socket.id] != "none")
 		{
 			try
@@ -664,7 +665,7 @@ function getInfoOfGroup(socket, keyin, keyout)
 {
 	socket.on(keyin,async function (data)
 	{
-		log('(Client) '+socket.id+'->'+keyin+': '+JSON.stringify(data))
+		log('(Client) '+ID[socket.id]+'->'+keyin+': '+JSON.stringify(data))
 		if (LG[socket.id] != "none")
 		{
 			var idg = data.idgroup;
@@ -1741,15 +1742,40 @@ function getTimeStamp(socket, keyin, keyout)
 	});
 }
 
-function addAnExam(socket, keyin, keyout)
+function autoMask(socket, keyin, keyout)
 {
 	socket.on(keyin, async function (data){
+		log('(Client) '+ID[socket.id]+'->'+keyin+': '+JSON.stringify(data));
 		if (LG[socket.id] != "none")
 		{
 			try
 			{
-				
-				socket.emit(keyout, success(config.getDate()+'-'+config.getTime()));
+				var eid = data.eid;
+				var alen = data.alen;
+				var aarr = data.aarr;
+				var answer = await exam.getAllAnswerOfExam(eid);
+
+				if (alen == answer.alen && alen == aarr.length && answer.alen == answer.aarr.length)
+				{
+					var corr = 0;
+					for (var i=0; i<alen; i++)
+					{
+						if (aarr[i] == answer.aarr[i])
+						{
+							corr++;
+						}
+					}
+					var point = Math.round(((10/alen)*corr)*1000)/1000;
+					var msg = point+"/"+10;
+					socket.emit(keyout, success(msg, "success"));
+					log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+				}
+				else
+				{
+					var msg = "Error with length answer?";
+					socket.emit(keyout, error(msg))
+					log('(Server) '+ID[socket.id]+"<-"+keyout+": "+msg)
+				}
 			}
 			catch (e)
 			{
