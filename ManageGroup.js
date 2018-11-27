@@ -19,108 +19,111 @@ var manage = new web3.eth.Contract(config.abiManage, config.addressManage, {
     gasPrice: config.gasPrice
 });
 
-function addGroup(name)
-{
-	log('(Server) send... addGroup');
-	return new Promise (function(resolve, reject){
-		var builder = group.methods.addGroup(name).encodeABI();
-		var transaction = config.createTransaction(config.addressFrom, config.addressGroup, builder);
-		web3.eth.accounts.signTransaction(transaction, config.privateKey, function (error, signedTx) {
-		    if (error)
-		    {
-		        return reject(error);
-			}
-			else
-			{
-				web3.eth.sendSignedTransaction(signedTx.rawTransaction).on('receipt', function (receipt) {
-		            return resolve(receipt);
-		 		}).on('error', function(err){
-		 			return reject(err);
-		 		})
-			}
-		});
-	});
-}
+var managegroup = new web3.eth.Contract(config.abiManageGroup, config.addressManageGroup, {
+    from: config.addressFrom,
+    gasPrice: config.gasPrice
+});
 
-function deleteGroup(id)
-{
-	log('(Server) send... deleteGroup');
-	return new Promise (function(resolve, reject){
-		var builder = group.methods.deleteGroup(id).encodeABI();
-		var transaction = config.createTransaction(config.addressFrom, config.addressGroup, builder);
-		web3.eth.accounts.signTransaction(transaction, config.privateKey, function (error, signedTx) {
-		    if (error)
-		    {
-		        return reject(error);
-			}
-			else
-			{
-				web3.eth.sendSignedTransaction(signedTx.rawTransaction).on('receipt', function (receipt) {
-		            return resolve(receipt);
-		 		}).on('error', function(err){
-		 			return reject(err);
-		 		})
-			}
-		});
-	});
-}
-
-function editGroup(id, name)
-{
-	log('(Server) send... editGroup');
-	return new Promise (function(resolve, reject){
-		var builder = group.methods.editGroup(id, name).encodeABI();
-		var transaction = config.createTransaction(config.addressFrom, config.addressGroup, builder);
-		web3.eth.accounts.signTransaction(transaction, config.privateKey, function (error, signedTx) {
-		    if (error)
-		    {
-		        return reject(error);
-			}
-			else
-			{
-				web3.eth.sendSignedTransaction(signedTx.rawTransaction).on('receipt', function (receipt) {
-		            return resolve(receipt);
-		 		}).on('error', function(err){
-		 			return reject(err);
-		 		})
-			}
-		});
-	});
-}
-
-function getId(item)
+//Group---------------------------------------------------------------------------
+function existIdGroup(id)
 {
 	return new Promise(function(rs, rj)
 	{
-		group.methods.getId(item).call().then(function(data){
-			if (data[0] == true)
-				return rs(data[2]);
+		group.methods.existIdGroup(id).call(function (error, result){
+			if (error)
+			{
+				return rj(error);
+			}
 			else
-				return rj("ID: "+data[1]);
-		})
+			{
+				return rs(result);
+			}
+		});
 	})
 }
 
-function getGid(name)
+function existNameGroup(name)
 {
 	return new Promise(function(rs, rj)
 	{
-		group.methods.getGid(name).call().then(function(data){
-			if (data[0] == true)
-				return rs(data[2]);
+		group.methods.existNameGroup(name).call(function (error, result){
+			if (error)
+			{
+				return rj(error);
+			}
 			else
-				return rj("GID: "+data[1]);
-		})
+			{
+				return rs(result);
+			}
+		});
 	})
 }
 
-function getLengthId()
+function getAllIdGroup()
 {
 	return new Promise(function(rs, rj)
 	{
-		group.methods.getLengthId().call().then(function(rt){
-			return rs(rt);
-		})
+		group.methods.getAllIdGroup().call(function (error, result){
+			if (error)
+			{
+				return rj(error);
+			}
+			else
+			{
+				return rs(result);
+			}
+		});
+	})
+}
+
+function getIdGroup(i)
+{
+	return new Promise(function(rs, rj)
+	{
+		group.methods.getIdGroup(i).call(function (error, result){
+			if (error)
+			{
+				return rj(error);
+			}
+			else
+			{
+				return rs(result);
+			}
+		});
+	})
+}
+
+function getIdNameGroup(name)
+{
+	return new Promise(function(rs, rj)
+	{
+		group.methods.getIdNameGroup(name).call(function (error, result){
+			if (error)
+			{
+				return rj(error);
+			}
+			else
+			{
+				return rs(result);
+			}
+		});
+	})
+}
+
+function getLengthIdGroup()
+{
+	return new Promise(function(rs, rj)
+	{
+		group.methods.getLengthIdGroup().call(function (error, result){
+			if (error)
+			{
+				return rj(error);
+			}
+			else
+			{
+				return rs(result);
+			}
+		});
 	})
 }
 
@@ -128,41 +131,230 @@ function getNameGroup(id)
 {
 	return new Promise(function(rs, rj)
 	{
-		group.methods.getNameGroup(id).call().then(function(data){
-			if (data[0] == true)
-				return rs(data[2]);
+		group.methods.getNameGroup(id).call(function (error, result){
+			if (error)
+			{
+				return rj(error);
+			}
 			else
-				return rj("NameGroup: "+data[1]);
-		})
+			{
+				return rs(result);
+			}
+		});
 	})
 }
 
-function existGroup(name)
+//Manage---------------------------------------------------------------------------
+function getAllIdGroupTeacher(user)
 {
 	return new Promise(function(rs, rj)
 	{
-		group.methods.existGroup(name).call().then(function(rt){
-			return rs(rt);
-		})
+		manage.methods.getAllIdGroupTeacher(user).call(function (error, result){
+			if (error)
+			{
+				return rj(error);
+			}
+			else
+			{
+				return rs(result);
+			}
+		});
 	})
 }
 
-function existIdGroup(idg)
+function getDate(user, id)
 {
 	return new Promise(function(rs, rj)
 	{
-		group.methods.existIdGroup(idg).call().then(function(rt){
-			return rs(rt);
+		manage.methods.getDate(user, id).call(function (error, result){
+			if (error)
+			{
+				return rj(error);
+			}
+			else
+			{
+				return rs(result);
+			}
+		});
+	})
+}
+
+function getLengthGroupTeacherManage(user)
+{
+	return new Promise(function(rs, rj)
+	{
+		manage.methods.getLengthGroupTeacherManage(user).call(function (error, result){
+			if (error)
+			{
+				return rj(error);
+			}
+			else
+			{
+				return rs(result);
+			}
+		});
+	})
+}
+
+function getStatusTeacherGroup(user, id)
+{
+	return new Promise(function(rs, rj)
+	{
+		manage.methods.getStatus(user, id).call(function (error, result){
+			if (error)
+			{
+				return rj(error);
+			}
+			else
+			{
+				return rs(result);
+			}
+		});
+	})
+}
+
+function getTeacherManage(id)
+{
+	return new Promise(function(rs, rj){
+		manage.methods.getTeacher(id).call(function(error, result){
+			if (error)
+			{
+				return rj(error);
+			}
+			else
+			{
+				return rs(result);
+			}
 		})
 	})
 }
 
-function groupAddUser(group, user)
+function groupExistInManage(id)
 {
-	log('(Server) send... groupAddUser');
-	return new Promise(function(resolve, reject){
-		var builder = join.methods.addUser(user, group).encodeABI();
-		var transaction = config.createTransaction(config.addressFrom, config.addressJoin, builder);
+	return new Promise(function(rs, rj){
+		manage.methods.groupExist(id).call(function(error, result){
+			if (error)
+			{
+				return rj(error);
+			}
+			else
+			{
+				return rs(result);
+			}
+		})
+	})
+}
+
+//Join------------------------------------------------------------------------------------------------
+function getAllIdGroupStudent(user)
+{
+	return new Promise(function(rs, rj)
+	{
+		join.methods.getAllGroupOfUser(user).call(function (error, result){
+			if (error)
+			{
+				return rj(error);
+			}
+			else
+			{
+				return rs(result);
+			}
+		});
+	})
+}
+
+function getIdGroupStudent(user, i)
+{
+	return new Promise(function(rs, rj)
+	{
+		join.methods.getJGroup(user, i).call(function (error, result){
+			if (error)
+			{
+				return rj(error);
+			}
+			else
+			{
+				return rs(result);
+			}
+		});
+	})
+}
+
+function getStatusGroupStudent(user, id)
+{
+	return new Promise(function(rs, rj)
+	{
+		join.methods.getJStatus(user, id).call(function (error, result){
+			if (error)
+			{
+				return rj(error);
+			}
+			else
+			{
+				return rs(result);
+			}
+		});
+	})
+}
+
+function getUserStudentGroup(id, i)
+{
+	return new Promise(function(rs, rj)
+	{
+		join.methods.getJUser(id, i).call(function (error, result){
+			if (error)
+			{
+				return rj(error);
+			}
+			else
+			{
+				return rs(result);
+			}
+		});
+	})
+}
+
+function getLengthGroupStudent(user)
+{
+	return new Promise(function(rs, rj)
+	{
+		join.methods.getLengthJGroup(user).call(function (error, result){
+			if (error)
+			{
+				return rj(error);
+			}
+			else
+			{
+				return rs(result);
+			}
+		});
+	})
+}
+
+function getLengthStudentGroup(id)
+{
+	return new Promise(function(rs, rj)
+	{
+		join.methods.getLengthJUser(id).call(function (error, result){
+			if (error)
+			{
+				return rj(error);
+			}
+			else
+			{
+				return rs(result);
+			}
+		});
+	})
+}
+
+//ManageGroup-----------------------------------------------------------------------------
+function createGroupByTeacher(user, pass, namegroup)
+{
+	log('(Server) send... deleteStudentUser' + user);
+	return new Promise(function (resolve, reject){
+		var builder = managegroup.methods.createGroupByTeacher(user, pass, namegroup).encodeABI();
+		var transaction = config.createTransaction(config.addressFrom, config.addressManageGroup, builder);
 		web3.eth.accounts.signTransaction(transaction, config.privateKey, function (error, signedTx) {
 		    if (error)
 		    {
@@ -177,15 +369,15 @@ function groupAddUser(group, user)
 		 		})
 			}
 		});
-	});
+	})
 }
 
-function groupRefuseUser(group, user)
+function deleteGroupByTeacher(user, pass, id)
 {
-	log('(Server) send... groupRefuseUser');
-	return new Promise(function(resolve, reject){
-		var builder = join.methods.groupRefuse(user, group).encodeABI();
-		var transaction = config.createTransaction(config.addressFrom, config.addressJoin, builder);
+	log('(Server) send... deleteStudentUser' + user);
+	return new Promise(function (resolve, reject){
+		var builder = managegroup.methods.deleteGroupByTeacher(user, pass, id).encodeABI();
+		var transaction = config.createTransaction(config.addressFrom, config.addressManageGroup, builder);
 		web3.eth.accounts.signTransaction(transaction, config.privateKey, function (error, signedTx) {
 		    if (error)
 		    {
@@ -200,15 +392,15 @@ function groupRefuseUser(group, user)
 		 		})
 			}
 		});
-	});
+	})
 }
 
-function userJoinGroup(user, group)
+function editGroupByTeacher(user, pass, id, newname)
 {
-	log('(Server) send... userJoinGroup');
-	return new Promise(function(resolve, reject){
-		var builder = join.methods.joinGruop(user, group).encodeABI();
-		var transaction = config.createTransaction(config.addressFrom, config.addressJoin, builder);
+	log('(Server) send... deleteStudentUser' + user);
+	return new Promise(function (resolve, reject){
+		var builder = managegroup.methods.editGroupByTeacher(user, pass, id, newname).encodeABI();
+		var transaction = config.createTransaction(config.addressFrom, config.addressManageGroup, builder);
 		web3.eth.accounts.signTransaction(transaction, config.privateKey, function (error, signedTx) {
 		    if (error)
 		    {
@@ -223,15 +415,15 @@ function userJoinGroup(user, group)
 		 		})
 			}
 		});
-	});
+	})
 }
 
-function userRefuseGroup(user, group)
+function groupAddOrInviteStudentByTeacher(user, pass, gid, suser)
 {
-	log('(Server) send... userRefuseGroup');
-	return new Promise(function(resolve, reject){
-		var builder = join.methods.userRefuse(user, group).encodeABI();
-		var transaction = config.createTransaction(config.addressFrom, config.addressJoin, builder);
+	log('(Server) send... deleteStudentUser' + user);
+	return new Promise(function (resolve, reject){
+		var builder = managegroup.methods.groupAddOrInviteStudentByTeacher(user, pass, gid, suser).encodeABI();
+		var transaction = config.createTransaction(config.addressFrom, config.addressManageGroup, builder);
 		web3.eth.accounts.signTransaction(transaction, config.privateKey, function (error, signedTx) {
 		    if (error)
 		    {
@@ -246,71 +438,15 @@ function userRefuseGroup(user, group)
 		 		})
 			}
 		});
-	});
-}
-
-function getGroupOfUser(user, index)
-{
-	return new Promise(function(rs, rj)
-	{
-		join.methods.getGroup(user, index).call().then(function(data){
-			if (data[0] == true)
-				return rs(data[2]);
-			else
-				return rj("GroupOfUser: "+data[1]);
-		})
 	})
 }
 
-function getLengthGroupOfUser(user)
+function groupDeleteOrRefuseStudentByTeacher(user, pass, gid, suser)
 {
-	return new Promise(function(rs, rj)
-	{
-		join.methods.getLengthGroup(user).call().then(function(rt){
-			return rs(rt);
-		})
-	})
-}
-
-function getLengthUserOfGroup(group)
-{
-	return new Promise(function(rs, rj)
-	{
-		join.methods.getLengthUser(group).call().then(function(rt){
-			return rs(rt);
-		})
-	})
-}
-
-function getStatus(user, group)
-{
-	return new Promise(function(rs, rj)
-	{
-		join.methods.getStatus(user, group).call().then(function(rt){
-			return rs(rt);
-		})
-	})
-}
-
-function getUserOfGroup(group, index)
-{
-	return new Promise(function(rs, rj)
-	{
-		join.methods.getUser(group, index).call().then(function(data){
-			if (data[0] == true)
-				return rs(data[2]);
-			else
-				return rj(data[1]);
-		})
-	})
-}
-
-function addManage(user, group)
-{
-	log('(Server) send... addManage');
-	return new Promise(function(resolve, reject){
-		var builder = manage.methods.addManage(user, group, config.getDate()).encodeABI();
-		var transaction = config.createTransaction(config.addressFrom, config.addressManage, builder);
+	log('(Server) send... deleteStudentUser' + user);
+	return new Promise(function (resolve, reject){
+		var builder = managegroup.methods.groupDeleteOrRefuseStudentByTeacher(user, pass, gid, suser).encodeABI();
+		var transaction = config.createTransaction(config.addressFrom, config.addressManageGroup, builder);
 		web3.eth.accounts.signTransaction(transaction, config.privateKey, function (error, signedTx) {
 		    if (error)
 		    {
@@ -325,15 +461,15 @@ function addManage(user, group)
 		 		})
 			}
 		});
-	});
+	})
 }
 
-function deleteManage(user, group)
+function studentExitOrRefuseGroup(suser, pass, gid)
 {
-	log('(Server) send... deleteManage');
-	return new Promise(function(resolve, reject){
-		var builder = manage.methods.deleteManage(user, group).encodeABI();
-		var transaction = config.createTransaction(config.addressFrom, config.addressManage, builder);
+	log('(Server) send... deleteStudentUser' + suser);
+	return new Promise(function (resolve, reject){
+		var builder = managegroup.methods.studentExitOrRefuseGroup(suser, pass, gid).encodeABI();
+		var transaction = config.createTransaction(config.addressFrom, config.addressManageGroup, builder);
 		web3.eth.accounts.signTransaction(transaction, config.privateKey, function (error, signedTx) {
 		    if (error)
 		    {
@@ -348,93 +484,49 @@ function deleteManage(user, group)
 		 		})
 			}
 		});
-	});
+	})
 }
 
-function getDate(user, group)
+function studentJoinOrAcceptGroup(suser, pass, gid)
 {
-	return new Promise(function(rs, rj)
-	{
-		manage.methods.getDate(user, group).call().then(function(data){
-			if (data[0] == true)
-				return rs(data[2]);
+	log('(Server) send... deleteStudentUser' + suser);
+	return new Promise(function (resolve, reject){
+		var builder = managegroup.methods.studentJoinOrAcceptGroup(suser, pass, gid).encodeABI();
+		var transaction = config.createTransaction(config.addressFrom, config.addressManageGroup, builder);
+		web3.eth.accounts.signTransaction(transaction, config.privateKey, function (error, signedTx) {
+		    if (error)
+		    {
+		        return reject(error);
+			}
 			else
-				return rj("GetDate: "+data[1]);
-		})
+			{
+				web3.eth.sendSignedTransaction(signedTx.rawTransaction).on('receipt', function (receipt) {
+		            return resolve(receipt);
+		 		}).on('error', function(err){
+		 			return reject(err);
+		 		})
+			}
+		});
 	})
 }
 
-function getGroupOfTeacher(user, index)
-{
-	return new Promise(function(rs, rj)
-	{
-		manage.methods.getGroup(user, index).call().then(function(data){
-			if (data[0] == true)
-				return rs(data[2]);
-			else
-				return rj("GroupOfTeacher: "+data[1]);
-		})
-	})
-}
-
-function getLengthGroupOfTeacher(user)
-{
-	return new Promise(function(rs, rj)
-	{
-		manage.methods.getLengthListGroup(user).call().then(function(rt){
-			return rs(rt);
-		})
-	})
-}
-
-function getStatusManage(user, group)
-{
-	return new Promise(function(rs, rj)
-	{
-		manage.methods.getStatus(user, group).call().then(function(rt){
-			return rs(rt);
-		})
-	})
-}
-
-function getTeacherOfGroup(group)
-{
-	return new Promise(function(rs, rj)
-	{
-		manage.methods.getTeacher(group).call().then(function(data){
-			if (data[0] == true)
-				return rs(data[2]);
-			else
-				return rj("TeacherOfGroup: "+data[1]);
-		})
-	})
-}
-
-function groupExistManage(group)
-{
-	return new Promise(function(rs, rj)
-	{
-		manage.methods.groupExist(group).call().then(function(rt){
-			return rs(rt);
-		})
-	})
-}
 
 async function getInfoAllGroupTeacherManage(teacher)
 {
 	var arr = [];
-	let len = await getLengthGroupOfTeacher(teacher);
+	let len = await getLengthGroupTeacherManage(teacher);
+	let garr = await getAllIdGroupTeacher(teacher);
 	for (var i=0; i<len; i++)
 	{
 		var info = {};
 		try
 		{
-			let gid = await getGroupOfTeacher(teacher, i);
+			let gid = parseInt(garr[i], 10);
 			let gdate = await getDate(teacher, gid);
 			let gname = await getNameGroup(gid);
-			let gmember = await getLengthUserOfGroup(gid);
+			let gmember = await getLengthStudentGroup(gid);
 
-			info.gid = gid;
+			info.gid = parseInt(gid);
 			info.gdate = gdate;
 			info.gname = gname;
 			info.gmember = gmember;
@@ -453,14 +545,14 @@ async function getInfoAllGroupTeacherManage(teacher)
 
 async function getAllStudentOfGroup(group)
 {
-	let len = await getLengthUserOfGroup(group)
+	let len = await getLengthStudentGroup(group)
 	let arr = [];
 	for (var i = 0; i<len; i++)
 	{
 		info = {};
 		try
 		{
-			let nameuser = await getUserOfGroup(group, i);
+			let nameuser = await getUserStudentGroup(group, i);
 			arr.push(nameuser);
 		}
 		catch(e)
@@ -508,18 +600,18 @@ async function deleteAllStudentOfGroup(idg)
 async function getInfoAllGroupStudentJoin(student)
 {
 	var arr = [];
-	let len = await getLengthGroupOfUser(student);
+	let len = await getLengthGroupStudent(student);
 	for (var i=0; i<len; i++)
 	{
 		var info = {};
 		try
 		{
-			let gid = await getGroupOfUser(student, i);
-			let status = await getStatus(student, gid);
+			let gid = await getIdGroupStudent(student, i);
+			let status = await getStatusGroupStudent(student, gid);
 			let gname = await getNameGroup(gid);
-			let gmember = await getLengthUserOfGroup(gid);
-			let userteacher = await getTeacherOfGroup(gid);
-			info.gid = gid;
+			let gmember = await getLengthStudentGroup(gid);
+			let userteacher = await getTeacherManage(gid);
+			info.gid = parseInt(gid);
 			info.status = status;
 			info.gname = gname;
 			info.gmember = gmember;
@@ -537,21 +629,29 @@ async function getInfoAllGroupStudentJoin(student)
 	return data;
 }
 
-async function getInfoAllGroup()
+async function getInfoAllGroup(length)
 {
-	var len = await getLengthId();
+	let len;
+	if (length == undefined)
+	{
+		len = await getLengthIdGroup();
+	}
+	else
+	{
+		len = length;
+	}
 	var arr = [];
 	for (var i=0; i<len; i++)
 	{
 		var info = {};
 		try
 		{
-			var gid = await getId(i);
+			var gid = await getIdGroup(i);
 			var gname = await getNameGroup(gid);
-			var tuser = await getTeacherOfGroup(gid)
+			var tuser = await getTeacherManage(gid)
 			var gdate = await getDate(tuser, gid);
 			
-			info.item = gid;
+			info.item = parseInt(gid);
 			info.gname = gname;
 			info.tuser = tuser;
 			info.gdate = gdate;
@@ -569,91 +669,60 @@ async function getInfoAllGroup()
 	return data;
 }
 
-// addGroup("testgroup").then(console.log).catch(console.log)
-// editGroup(1000, 'testgroup').then(console.log).catch(console.log)
-// deleteGroup(1011).then(console.log).catch(console.log)
-// getGid("testgroup").then(console.log);
-// getId(0).then(console.log)
-// getLengthId().then(console.log)
-// getNameGroup(1007).then(console.log)
-// existGroup('testgroup').then(console.log)
-// existIdGroup(1010).then(console.log);
-//-----------------------------------------------------------------------
-// groupAddUser(1007, "duonglee").then(function(data){
-// 	console.log(config.infoTransaction(data));
-// });
-// getGroupOfUser("duonglee", 0).then(console.log);
-// getLengthGroupOfUser("duonglee").then(console.log);
-// getLengthUserOfGroup(1009).then(console.log);
-// getStatus("duonglee", 1007).then(console.log);
-// getUserOfGroup(1007, 0).then(console.log);
-// groupRefuseUser(1007, "HAT").then(function(data){
-// 	console.log(config.infoTransaction(data));
-// })
-// userJoinGroup("duonglee", 1000).then(function(data){
-// 	console.log(config.infoTransaction(data));
-// });
-// userRefuseGroup("duonglee", 1000).then(function(data){
-// 	console.log(config.infoTransaction(data));
-// })
-//-----------------------------------------------------------------------
-// addManage("duonglee", 1000).then(function(data){
-// 	console.log(config.infoTransaction(data));
-// });
-// deleteManage("xuanhuy", 1002).then(function(data){
-// 	console.log(config.infoTransaction(data));
-// })
-// getDate("xuanhuy", 1003).then(console.log);
-// getGroupOfTeacher("xuanhuy", 0).then(console.log);
-// getLengthGroupOfTeacher("xuanhuy").then(console.log);
-// getStatusManage("HAT", 1011).then(console.log);
-// getTeacherOfGroup(1011).then(console.log);
-// groupExistMange(1000).then(console.log);
-//------------------------------------------------------------------------
-// getInfoAllGroupTeacherManage("xuanhuy").then(console.log);
-// getAllStudentOfGroup(1007).then(console.log);
-// getInfoAllGroupStudentJoin("duonglee").then(console.log);
+// existIdGroup(1001).then(console.log);
+// existNameGroup('test group').then(console.log);
+// getAllIdGroup().then(console.log);
+// getIdGroup(0).then(console.log);
+// getIdNameGroup("test group").then(console.log);
+// getLengthIdGroup().then(console.log);
+// getNameGroup(1001).then(console.log);
 
-// getInfoAllGroup().then(console.log);
+// getAllIdGroupTeacher("xuanhuy").then(console.log);
+// getDate("xuanhuy", 1001).then(console.log);
+// getLengthGroupTeacherManage("xuanhuy").then(console.log);
+// getStatusTeacherGroup("xuanhuy", 1001).then(console.log);
+// getTeacherManage(1005).then(console.log);
+// groupExistInManage(1001).then(console.log);
 
-module.exports =
+// getAllIdGroupStudent("duonglee").then(console.log);
+// getIdGroupStudent("duonglee", 0).then(console.log);
+// getStatusGroupStudent("duonglee", 1005).then(console.log);
+// getUserStudentGroup(1001, 0).then(console.log);
+// getLengthGroupStudent("duonglee").then(console.log);
+// getLengthStudentGroup(1001).then(console.log);
+
+// groupAddOrInviteStudentByTeacher("xuanhuy", "protest", 1005, "duonglee").then(console.log);
+// studentExitOrRefuseGroup("duonglee", "protest", 1005).then(console.log);
+// studentJoinOrAcceptGroup("duonglee", "protest", 1005).then(console.log);
+// groupDeleteOrRefuseStudentByTeacher("xuanhuy", "protest", 1001, "duonglee").then(console.log);
+// editGroupByTeacher("xuanhuy", "protest", 1001, "grouptest").then(console.log);
+// createGroupByTeacher("xuanhuy", "protest", "grouptest2").then(console.log);
+// deleteGroupByTeacher("xuanhuy", "protest", 1004).then(console.log);
+
+// getInfoAllGroup(3).then(console.log);
+
+module.exports = 
 {
-	addGroup: addGroup,
-	editGroup: editGroup,
-	deleteGroup: deleteGroup,
-
-	getId: getId,
-	getLengthId: getLengthId,
-	getNameGroup: getNameGroup,
-	getGid: getGid,
-	
+	existNameGroup: existNameGroup,
+	getIdNameGroup: getIdNameGroup,
 	existIdGroup: existIdGroup,
-	existGroup: existGroup,
+	getNameGroup: getNameGroup,
 
-	groupAddUser: groupAddUser,
-	groupRefuseUser: groupRefuseUser,
-	userJoinGroup: userJoinGroup,
-	userRefuseGroup: userRefuseGroup,
+	getStatusTeacherGroup: getStatusTeacherGroup,
+	getTeacherManage: getTeacherManage,
 
-	getGroupOfUser: getGroupOfUser,
-	getLengthGroupOfUser: getLengthGroupOfUser,
-	getLengthUserOfGroup: getLengthUserOfGroup,
-	getStatus: getStatus,
-	getUserOfGroup: getUserOfGroup,
-
-	addManage: addManage,
-	deleteManage: deleteManage,
-	
-	getDate: getDate,
-	getGroupOfTeacher: getGroupOfTeacher,
-	getLengthGroupOfTeacher: getLengthGroupOfTeacher,
-	getStatusManage: getStatusManage,
-	getTeacherOfGroup: getTeacherOfGroup,
-	groupExistManage: groupExistManage,
+	createGroupByTeacher: createGroupByTeacher,
+	deleteGroupByTeacher: deleteGroupByTeacher,
+	editGroupByTeacher: editGroupByTeacher,
 
 	getInfoAllGroupTeacherManage: getInfoAllGroupTeacherManage,
+	getStatusGroupStudent: getStatusGroupStudent,
+	groupAddOrInviteStudentByTeacher: groupAddOrInviteStudentByTeacher,
+	groupDeleteOrRefuseStudentByTeacher: groupDeleteOrRefuseStudentByTeacher,
+	studentJoinOrAcceptGroup: studentJoinOrAcceptGroup,
+	studentExitOrRefuseGroup: studentExitOrRefuseGroup,
+
+	getInfoAllGroup: getInfoAllGroup,
 	getAllStudentOfGroup: getAllStudentOfGroup,
-	deleteAllStudentOfGroup: deleteAllStudentOfGroup,
-	getInfoAllGroupStudentJoin: getInfoAllGroupStudentJoin,
-	getInfoAllGroup: getInfoAllGroup
+	getInfoAllGroupStudentJoin: getInfoAllGroupStudentJoin
 }
